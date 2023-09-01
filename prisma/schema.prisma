@@ -1,6 +1,5 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,9 +10,37 @@ datasource db {
   relationMode = "prisma"
 }
 
+enum UserRoles {
+  ADMIN
+  LIBRARIAN
+  STUDENT
+}
+
 model Admin {
-  id       Int    @id @default(autoincrement())
-  email    String @unique
-  username String @unique
+  id       Int       @id @default(autoincrement())
+  role     UserRoles @default(ADMIN)
+  email    String    @unique
+  username String    @unique
   password String
+}
+
+model Librarian {
+  id         Int       @id @default(autoincrement())
+  role       UserRoles @default(LIBRARIAN)
+  employeeId Int       @unique
+  email      String    @unique
+  password   String
+}
+
+model Student {
+  id           Int       @id @default(autoincrement())
+  role         UserRoles @default(STUDENT)
+  studentId    Int       @unique
+  email        String    @unique
+  fullname     String
+  profilePhoto String?
+  course       String
+  college      String
+  mobile       String
+  password     String
 }

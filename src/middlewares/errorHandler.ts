@@ -7,7 +7,7 @@ const errHandler = (error: unknown, res: Response) => {
   if (error instanceof CustomeError)
     return res.status(error.statusCode).json({ message: error.message });
   else if (error instanceof ZodError)
-    return res.status(403).json({ message: error.issues });
+    return res.status(403).json({ message: error.issues[0].message });
   else if (error instanceof Error)
     return res.status(400).json({ message: error.message });
   else

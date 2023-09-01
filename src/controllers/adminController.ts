@@ -7,9 +7,12 @@ import tokenGenerator from '../utils/tokenGenerator';
 export const login = async (req: Request, res: Response) => {
   try {
     const { username, password } = req.body;
+    console.log('username: ', typeof username);
 
     const Schema = z.object({
-      username: z.string({ required_error: 'Username is required' }),
+      username: z
+        .string({ required_error: 'Username is required' })
+        .min(1, 'Username is required'),
       password: z.string({ required_error: 'Password is required' }),
     });
 
