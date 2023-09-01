@@ -1,0 +1,31 @@
+require('dotenv').config();
+import express from 'express';
+import cors from 'cors';
+import corsOption from './src/config/cors';
+import authRoutes from './src/routes/authRoutes';
+import { PrismaClient } from '@prisma/client';
+
+const PORT: number = parseInt(process.env.PORT as string) || 5000;
+const app = express();
+const prisma = new PrismaClient();
+
+app.use(cors(corsOption));
+app.use(express.json());
+
+app.listen(PORT, async () => {
+  try {
+    await prisma.$connect();
+    console.log(`Server running on port ${PORT}`);
+  } catch (error) {
+    console.log(error);
+    await prisma.$disconnect();
+    process.exit(1);
+  }
+});
+
+// api routes
+app.use('/api/auth', authRoutes);
+
+app.all('*', (req, res) => {
+  res.status(404).send('ROUTE NOT FOUND');
+});
