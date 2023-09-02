@@ -1,8 +1,9 @@
 import jwt from 'jsonwebtoken';
 
-type UserType = {
+export type UserType = {
   id: number;
   email: string;
+  role: 'ADMIN' | 'LIBRARIAN' | 'STUDENT';
 };
 
 const tokenGenerator = (user: UserType) => {

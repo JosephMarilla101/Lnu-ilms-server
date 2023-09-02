@@ -12,30 +12,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-require('dotenv').config();
-const express_1 = __importDefault(require("express"));
-const cors_1 = __importDefault(require("cors"));
-const cors_2 = __importDefault(require("./src/config/cors"));
-const authRoutes_1 = __importDefault(require("./src/routes/authRoutes"));
-const client_1 = require("@prisma/client");
-const PORT = parseInt(process.env.PORT) || 5000;
-const app = (0, express_1.default)();
-const prisma = new client_1.PrismaClient();
-app.use((0, cors_1.default)(cors_2.default));
-app.use(express_1.default.json());
-app.listen(PORT, () => __awaiter(void 0, void 0, void 0, function* () {
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const errorHandler_1 = __importDefault(require("./errorHandler"));
+const customError_1 = __importDefault(require("../utils/customError"));
+const verifyJwt = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
-        yield prisma.$connect();
-        console.log(`Server running on port ${PORT}`);
+        const token = (_a = req.header('Authorization')) === null || _a === void 0 ? void 0 : _a.replace('Bearer ', '');
+        if (!token) {
+            throw new customError_1.default(401, 'No token');
+        }
+        const decoded = jsonwebtoken_1.default.verify(token, process.env.SECRET_KEY);
+        req.user = decoded;
+        next();
     }
     catch (error) {
-        console.log(error);
-        yield prisma.$disconnect();
-        process.exit(1);
+        (0, errorHandler_1.default)(error, res);
     }
-}));
-// api routes
-app.use('/api/auth', authRoutes_1.default);
-app.all('*', (req, res) => {
-    res.status(404).send('ROUTE NOT FOUND');
 });
+exports.default = verifyJwt;

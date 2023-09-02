@@ -12,30 +12,36 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-require('dotenv').config();
-const express_1 = __importDefault(require("express"));
-const cors_1 = __importDefault(require("cors"));
-const cors_2 = __importDefault(require("./src/config/cors"));
-const authRoutes_1 = __importDefault(require("./src/routes/authRoutes"));
 const client_1 = require("@prisma/client");
-const PORT = parseInt(process.env.PORT) || 5000;
-const app = (0, express_1.default)();
+const bcrypt_1 = __importDefault(require("bcrypt"));
 const prisma = new client_1.PrismaClient();
-app.use((0, cors_1.default)(cors_2.default));
-app.use(express_1.default.json());
-app.listen(PORT, () => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        yield prisma.$connect();
-        console.log(`Server running on port ${PORT}`);
-    }
-    catch (error) {
-        console.log(error);
-        yield prisma.$disconnect();
-        process.exit(1);
-    }
+const adminEmail = 'admin@gmail.com';
+const adminUsername = 'admin';
+const adminPassword = 'admin123';
+function main() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const hashPassword = bcrypt_1.default.hashSync(adminPassword, 10);
+        yield prisma.admin.upsert({
+            where: { email: adminEmail },
+            update: {
+                email: adminEmail,
+                username: adminUsername,
+                password: hashPassword,
+            },
+            create: {
+                email: adminEmail,
+                username: adminUsername,
+                password: hashPassword,
+            },
+        });
+    });
+}
+main()
+    .then(() => __awaiter(void 0, void 0, void 0, function* () {
+    yield prisma.$disconnect();
+}))
+    .catch((e) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(e);
+    yield prisma.$disconnect();
+    process.exit(1);
 }));
-// api routes
-app.use('/api/auth', authRoutes_1.default);
-app.all('*', (req, res) => {
-    res.status(404).send('ROUTE NOT FOUND');
-});
