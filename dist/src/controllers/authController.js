@@ -40,10 +40,10 @@ const zod_1 = __importDefault(require("zod"));
 const errorHandler_1 = __importDefault(require("../middlewares/errorHandler"));
 const authServices = __importStar(require("../services/authServices"));
 const tokenGenerator_1 = __importDefault(require("../utils/tokenGenerator"));
+const customError_1 = __importDefault(require("../utils/customError"));
 const adminLogin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { username, password } = req.body;
-        console.log('username: ', typeof username);
         const Schema = zod_1.default.object({
             username: zod_1.default
                 .string({ required_error: 'Username is required' })
@@ -53,7 +53,7 @@ const adminLogin = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         const validated = Schema.parse({ username, password });
         const user = yield authServices.adminLogin(validated);
         const token = (0, tokenGenerator_1.default)(user);
-        return res.status(200).json({ token });
+        return res.status(200).json({ user, token });
     }
     catch (error) {
         (0, errorHandler_1.default)(error, res);
@@ -62,6 +62,20 @@ const adminLogin = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 exports.adminLogin = adminLogin;
 const authenticateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        const user = req.user;
+        if ((user === null || user === void 0 ? void 0 : user.role) === 'ADMIN') {
+            const auth = yield authServices.findAdmin(user.id);
+            return res.status(200).json(auth);
+        }
+        if ((user === null || user === void 0 ? void 0 : user.role) === 'LIBRARIAN') {
+            const auth = yield authServices.findLibrarian(user.id);
+            return res.status(200).json(auth);
+        }
+        if ((user === null || user === void 0 ? void 0 : user.role) === 'STUDENT') {
+            const auth = yield authServices.findStudent(user.id);
+            return res.status(200).json(auth);
+        }
+        throw new customError_1.default(404, 'Unauthorize');
     }
     catch (error) {
         (0, errorHandler_1.default)(error, res);

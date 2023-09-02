@@ -60,7 +60,7 @@ const studentLogin = ({ email, password, }) => __awaiter(void 0, void 0, void 0,
 });
 exports.studentLogin = studentLogin;
 const findAdmin = (id) => __awaiter(void 0, void 0, void 0, function* () {
-    const admin = yield prisma.admin.findUnique({
+    const admin = yield prisma.admin.findUniqueOrThrow({
         where: {
             id,
         },
@@ -69,7 +69,7 @@ const findAdmin = (id) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.findAdmin = findAdmin;
 const findLibrarian = (id) => __awaiter(void 0, void 0, void 0, function* () {
-    const librarian = yield prisma.librarian.findUnique({
+    const librarian = yield prisma.librarian.findUniqueOrThrow({
         where: {
             id,
         },
@@ -78,7 +78,7 @@ const findLibrarian = (id) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.findLibrarian = findLibrarian;
 const findStudent = (id) => __awaiter(void 0, void 0, void 0, function* () {
-    const student = yield prisma.student.findUnique({
+    const student = yield prisma.student.findUniqueOrThrow({
         where: {
             id,
         },

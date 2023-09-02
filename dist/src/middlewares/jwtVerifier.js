@@ -15,12 +15,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const errorHandler_1 = __importDefault(require("./errorHandler"));
 const customError_1 = __importDefault(require("../utils/customError"));
-const verifyJwt = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const jwtVerifier = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
         const token = (_a = req.header('Authorization')) === null || _a === void 0 ? void 0 : _a.replace('Bearer ', '');
         if (!token) {
-            throw new customError_1.default(401, 'No token');
+            throw new customError_1.default(401, 'Unauthorize, No token');
         }
         const decoded = jsonwebtoken_1.default.verify(token, process.env.SECRET_KEY);
         req.user = decoded;
@@ -30,4 +30,4 @@ const verifyJwt = (req, res, next) => __awaiter(void 0, void 0, void 0, function
         (0, errorHandler_1.default)(error, res);
     }
 });
-exports.default = verifyJwt;
+exports.default = jwtVerifier;
