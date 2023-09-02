@@ -33,14 +33,77 @@ model Librarian {
 }
 
 model Student {
+  id             Int            @id @default(autoincrement())
+  role           UserRoles      @default(STUDENT)
+  studentId      Int            @unique
+  email          String         @unique
+  fullname       String
+  profilePhoto   String?
+  profilePhotoId String?
+  course         String
+  college        String
+  mobile         String
+  password       String
+  borrowedBooks  BorrowedBook[]
+}
+
+model Author {
+  id        Int      @id @default(autoincrement())
+  name      String
+  status    Boolean
+  books     Book[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id        Int      @id @default(autoincrement())
+  name      String
+  status    Boolean
+  books     Book[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Book {
+  isbnNumber  Int            @unique
+  bookCover   String?
+  bookCoverId String?
+  isIssued    Boolean
+  author      Author         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId    Int
+  category    Category       @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId  Int
+  stock       BookStock?
+  borrowedBy  BorrowedBook[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([authorId])
+  @@index([categoryId])
+}
+
+model BookStock {
+  quantity  Int      @default(1)
+  book      Book     @relation(fields: [bookId], references: [isbnNumber], onDelete: Cascade)
+  bookId    Int      @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BorrowedBook {
   id           Int       @id @default(autoincrement())
-  role         UserRoles @default(STUDENT)
-  studentId    Int       @unique
-  email        String    @unique
-  fullname     String
-  profilePhoto String?
-  course       String
-  college      String
-  mobile       String
-  password     String
+  student      Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId    Int
+  book         Book      @relation(fields: [bookId], references: [isbnNumber])
+  bookId       Int
+  dueDate      DateTime
+  returnedDate DateTime?
+  lateFee      Float
+  isReturn     Boolean
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([studentId])
+  @@index([bookId])
 }

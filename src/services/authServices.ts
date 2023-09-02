@@ -71,7 +71,7 @@ export const studentLogin = async ({
   return student;
 };
 
-export const findAdmin = async (id: number): Promise<Admin | null> => {
+export const findAdmin = async (id: number): Promise<Admin> => {
   const admin = await prisma.admin.findUniqueOrThrow({
     where: {
       id,
@@ -81,7 +81,7 @@ export const findAdmin = async (id: number): Promise<Admin | null> => {
   return admin;
 };
 
-export const findLibrarian = async (id: number): Promise<Librarian | null> => {
+export const findLibrarian = async (id: number): Promise<Librarian> => {
   const librarian = await prisma.librarian.findUniqueOrThrow({
     where: {
       id,
