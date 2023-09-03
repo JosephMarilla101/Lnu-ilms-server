@@ -17,6 +17,7 @@ const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const cors_2 = __importDefault(require("./src/config/cors"));
 const authRoutes_1 = __importDefault(require("./src/routes/authRoutes"));
+const authorRoutes_1 = __importDefault(require("./src/routes/authorRoutes"));
 const client_1 = require("@prisma/client");
 const PORT = parseInt(process.env.PORT) || 5000;
 const app = (0, express_1.default)();
@@ -36,6 +37,7 @@ app.listen(PORT, () => __awaiter(void 0, void 0, void 0, function* () {
 }));
 // api routes
 app.use('/api/auth', authRoutes_1.default);
+app.use('/api/author', authorRoutes_1.default);
 app.all('*', (req, res) => {
     res.status(404).send('ROUTE NOT FOUND');
 });
