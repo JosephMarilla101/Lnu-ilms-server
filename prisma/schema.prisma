@@ -33,10 +33,10 @@ model Librarian {
 }
 
 model Student {
-  id             Int            @id @default(autoincrement())
-  role           UserRoles      @default(STUDENT)
-  studentId      Int            @unique
-  email          String         @unique
+  id             Int          @id @default(autoincrement())
+  role           UserRoles    @default(STUDENT)
+  studentId      Int          @unique
+  email          String       @unique
   fullname       String
   profilePhoto   String?
   profilePhotoId String?
@@ -44,7 +44,7 @@ model Student {
   college        String
   mobile         String
   password       String
-  borrowedBooks  BorrowedBook[]
+  borrowedBooks  IssuedBook[]
 }
 
 model Author {
@@ -70,18 +70,18 @@ model Category {
 }
 
 model Book {
-  isbnNumber  Int            @unique
+  isbnNumber  Int          @unique
   bookCover   String?
   bookCoverId String?
   isIssued    Boolean
-  author      Author         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  author      Author       @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId    Int
-  category    Category       @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  category    Category     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   categoryId  Int
   stock       BookStock?
-  borrowedBy  BorrowedBook[]
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
+  borrowedBy  IssuedBook[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 
   @@index([authorId])
   @@index([categoryId])
@@ -95,7 +95,7 @@ model BookStock {
   updatedAt DateTime @updatedAt
 }
 
-model BorrowedBook {
+model IssuedBook {
   id           Int       @id @default(autoincrement())
   student      Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
   studentId    Int

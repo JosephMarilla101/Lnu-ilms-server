@@ -78,7 +78,7 @@ export const getAuthor = async (req: AuthenticatedRequest, res: Response) => {
       id: z
         .string({
           required_error: 'Author ID is required',
-          invalid_type_error: 'Followed user ID is not a valid ID',
+          invalid_type_error: 'Author ID is not a valid ID',
         })
         .transform((value) => parseInt(value)),
     });
