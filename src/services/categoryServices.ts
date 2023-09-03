@@ -3,6 +3,8 @@ import customeError from '../utils/customError';
 
 const prisma = new PrismaClient();
 
+// When fetchin category, exclude the softdeleted category by adding isDeleted = false in where clause
+
 export const createCategory = async ({
   name,
   status,

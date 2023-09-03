@@ -3,6 +3,8 @@ import customeError from '../utils/customError';
 
 const prisma = new PrismaClient();
 
+// When fetchin author, exclude the softdeleted author by adding isDeleted = false in where clause
+
 export const createAuthor = async (name: string): Promise<Author> => {
   const author = await prisma.author.create({
     data: {
