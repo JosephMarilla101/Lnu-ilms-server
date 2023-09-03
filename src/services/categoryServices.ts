@@ -59,12 +59,15 @@ export const deleteCategory = async (id: number): Promise<Category> => {
 
   if (!category) throw new customeError(404, 'Category not found');
 
+  const date = new Date();
+
   const deletedCategory = await prisma.category.update({
     where: {
       id: category.id,
     },
     data: {
       isDeleted: true,
+      deletedAt: date,
     },
   });
 

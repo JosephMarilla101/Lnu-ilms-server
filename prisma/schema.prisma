@@ -70,13 +70,14 @@ model Category {
 }
 
 model Book {
+  id          Int          @id @default(autoincrement())
   isbnNumber  Int          @unique
   bookCover   String?
   bookCoverId String?
   isIssued    Boolean
   author      Author       @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId    Int
-  category    Category     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  category    Category[]
   categoryId  Int
   stock       BookStock?
   borrowedBy  IssuedBook[]

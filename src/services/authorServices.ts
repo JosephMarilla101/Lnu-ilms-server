@@ -52,12 +52,15 @@ export const deleteAuthor = async (id: number): Promise<Author> => {
 
   if (!author) throw new customeError(404, 'Author not found');
 
+  const date = new Date();
+
   const deletedAuthor = await prisma.author.update({
     where: {
       id: author.id,
     },
     data: {
       isDeleted: true,
+      deletedAt: date,
     },
   });
 
