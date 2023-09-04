@@ -5,6 +5,7 @@ import corsOption from './src/config/cors';
 import authRoutes from './src/routes/authRoutes';
 import authorRoutes from './src/routes/authorRoutes';
 import categoryRoutes from './src/routes/categoryRoutes';
+import bookRoutes from './src/routes/bookRoutes';
 import { PrismaClient } from '@prisma/client';
 
 const PORT: number = parseInt(process.env.PORT as string) || 5000;
@@ -33,6 +34,7 @@ app.all('/api', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/author', authorRoutes);
 app.use('/api/category', categoryRoutes);
+app.use('/api/book', bookRoutes);
 
 app.all('*', (req, res) => {
   res.status(404).send('ROUTE NOT FOUND');
