@@ -44,6 +44,61 @@ export const createBook = async ({
   return newBook;
 };
 
+export const getBook = async (id: number) => {
+  const book = await prisma.book.findUniqueOrThrow({
+    where: {
+      id,
+    },
+    select: {
+      id: true,
+      isbn: true,
+      name: true,
+      bookCover: true,
+      isIssued: true,
+      author: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      category: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+  });
+
+  return book;
+};
+
+export const getBookList = async ({
+  myCursor,
+  sortBy,
+}: {
+  myCursor?: number;
+  sortBy?: string;
+}) => {
+  const booksId = await prisma.book.findMany({
+    skip: myCursor ? 1 : 0,
+    take: 20,
+    ...(myCursor && {
+      cursor: {
+        id: myCursor,
+      },
+    }),
+    select: {
+      id: true,
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+
+  return booksId;
+};
+
 export const checkUniqueIsbn = async (isbn: number): Promise<boolean> => {
   const book = await prisma.book.findUnique({
     where: {

@@ -1,9 +1,15 @@
 import express from 'express';
 import jwtVerifier from '../middlewares/jwtVerifier';
-import { createBook } from '../controllers/bookController';
+import {
+  createBook,
+  getBook,
+  getBookList,
+} from '../controllers/bookController';
 
-const categoryRouter = express.Router();
+const bookRouter = express.Router();
 
-categoryRouter.post('/', jwtVerifier, createBook);
+bookRouter.get('/', jwtVerifier, getBook);
+bookRouter.get('/list', jwtVerifier, getBookList);
+bookRouter.post('/', jwtVerifier, createBook);
 
-export default categoryRouter;
+export default bookRouter;
