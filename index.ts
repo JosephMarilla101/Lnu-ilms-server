@@ -26,13 +26,13 @@ app.listen(PORT, async () => {
 });
 
 // api routes
+app.all('/api', (req, res) => {
+  res.status(200).send('Welcome to LNU-ILMS api');
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/author', authorRoutes);
 app.use('/api/category', categoryRoutes);
-
-app.all('/', (req, res) => {
-  res.status(200).send('Welcome to LNU-ILMS api');
-});
 
 app.all('*', (req, res) => {
   res.status(404).send('ROUTE NOT FOUND');
