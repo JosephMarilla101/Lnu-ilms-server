@@ -4,8 +4,9 @@ import {
   createAuthor,
   deleteAuthor,
   getAuthor,
-  getALLAuthors,
   updateAuthor,
+  getALLAuthors,
+  getActiveAuthors,
 } from '../controllers/authorController';
 
 const authorRouter = express.Router();
@@ -15,5 +16,6 @@ authorRouter.post('/', jwtVerifier, createAuthor);
 authorRouter.put('/', jwtVerifier, updateAuthor);
 authorRouter.put('/soft-delete', jwtVerifier, deleteAuthor);
 authorRouter.get('/all', jwtVerifier, getALLAuthors);
+authorRouter.get('/active', jwtVerifier, getActiveAuthors);
 
 export default authorRouter;

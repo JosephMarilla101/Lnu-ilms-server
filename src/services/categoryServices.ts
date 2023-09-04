@@ -95,3 +95,16 @@ export const getALLCategories = async (): Promise<Category[]> => {
 
   return categories;
 };
+
+export const getActiveCategories = async (): Promise<Category[]> => {
+  const categories = await prisma.category.findMany({
+    where: {
+      isDeleted: false,
+      AND: {
+        status: true,
+      },
+    },
+  });
+
+  return categories;
+};

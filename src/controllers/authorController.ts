@@ -107,3 +107,16 @@ export const getALLAuthors = async (
     errHandler(error, res);
   }
 };
+
+export const getActiveAuthors = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const authors = await authorServices.getActiveAuthors();
+
+    return res.status(200).json(authors);
+  } catch (error) {
+    errHandler(error, res);
+  }
+};

@@ -108,3 +108,16 @@ export const getALLCategories = async (
     errHandler(error, res);
   }
 };
+
+export const getActiveCategories = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const category = await categoryServices.getActiveCategories();
+
+    return res.status(200).json(category);
+  } catch (error) {
+    errHandler(error, res);
+  }
+};

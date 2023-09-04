@@ -4,8 +4,9 @@ import {
   createCategory,
   deleteCategory,
   getCategory,
-  getALLCategories,
   updateCategory,
+  getALLCategories,
+  getActiveCategories,
 } from '../controllers/categoryController';
 
 const categoryRouter = express.Router();
@@ -15,5 +16,6 @@ categoryRouter.post('/', jwtVerifier, createCategory);
 categoryRouter.put('/', jwtVerifier, updateCategory);
 categoryRouter.put('/soft-delete', jwtVerifier, deleteCategory);
 categoryRouter.get('/all', jwtVerifier, getALLCategories);
+categoryRouter.get('/active', jwtVerifier, getActiveCategories);
 
 export default categoryRouter;

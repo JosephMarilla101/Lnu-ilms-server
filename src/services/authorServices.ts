@@ -88,3 +88,16 @@ export const getALLAuthors = async (): Promise<Author[]> => {
 
   return authors;
 };
+
+export const getActiveAuthors = async (): Promise<Author[]> => {
+  const authors = await prisma.author.findMany({
+    where: {
+      isDeleted: false,
+      AND: {
+        status: true,
+      },
+    },
+  });
+
+  return authors;
+};
