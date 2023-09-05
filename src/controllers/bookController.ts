@@ -7,7 +7,7 @@ import customeError from '../utils/customError';
 
 export const createBook = async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { name, bookCover, bookCoverId, authorId, categoryIds, stock } =
+    const { name, bookCover, bookCoverId, authorId, categoryIds, copies } =
       req.body;
 
     const isbn = await generateUniqueISBN();
@@ -34,7 +34,7 @@ export const createBook = async (req: AuthenticatedRequest, res: Response) => {
         .refine((ids) => ids.length >= 1, {
           message: 'Please select at least 1 book category',
         }),
-      stock: z.number(),
+      copies: z.number(),
       isbn: z.number({ invalid_type_error: 'ISBN must be a unique number.' }),
     });
 
@@ -44,11 +44,9 @@ export const createBook = async (req: AuthenticatedRequest, res: Response) => {
       bookCoverId,
       authorId,
       categoryIds,
-      stock,
+      copies,
       isbn,
     });
-
-    console.log(validated);
 
     const book = await bookServices.createBook(validated);
 

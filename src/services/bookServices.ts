@@ -10,7 +10,7 @@ export const createBook = async ({
   bookCoverId,
   authorId,
   categoryIds,
-  stock,
+  copies,
 }: {
   isbn: number;
   name: string;
@@ -18,7 +18,7 @@ export const createBook = async ({
   bookCoverId?: string;
   authorId: number;
   categoryIds: number[];
-  stock: number;
+  copies: number;
 }) => {
   const newBook = await prisma.book.create({
     data: {
@@ -26,13 +26,8 @@ export const createBook = async ({
       name,
       bookCover,
       bookCoverId,
-      isIssued: true,
       authorId,
-      stock: {
-        create: {
-          quantity: stock,
-        },
-      },
+      copies,
       category: {
         connect: categoryIds.map((categoryId) => ({
           id: categoryId,
@@ -54,7 +49,7 @@ export const getBook = async (id: number) => {
       isbn: true,
       name: true,
       bookCover: true,
-      isIssued: true,
+      copies: true,
       author: {
         select: {
           id: true,

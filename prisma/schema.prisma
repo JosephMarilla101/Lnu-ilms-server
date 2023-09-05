@@ -33,10 +33,10 @@ model Librarian {
 }
 
 model Student {
-  id             Int          @id @default(autoincrement())
-  role           UserRoles    @default(STUDENT)
-  studentId      Int          @unique
-  email          String       @unique
+  id             Int            @id @default(autoincrement())
+  role           UserRoles      @default(STUDENT)
+  studentId      Int            @unique
+  email          String         @unique
   fullname       String
   profilePhoto   String?
   profilePhotoId String?
@@ -44,7 +44,7 @@ model Student {
   college        String
   mobile         String
   password       String
-  borrowedBooks  IssuedBook[]
+  borrowedBooks  BorrowedBook[]
 }
 
 model Author {
@@ -70,36 +70,27 @@ model Category {
 }
 
 model Book {
-  id          Int          @id @default(autoincrement())
-  isbn        Int          @unique
+  id          Int            @id @default(autoincrement())
+  isbn        Int            @unique
   name        String
   bookCover   String?
   bookCoverId String?
-  isIssued    Boolean
-  author      Author       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  author      Author         @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId    Int
   category    Category[]
-  stock       BookStock?
-  borrowedBy  IssuedBook[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  copies      Int            @default(1)
+  borrowedBy  BorrowedBook[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
 
   @@index([authorId])
 }
 
-model BookStock {
-  quantity  Int      @default(1)
-  book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
-  bookId    Int      @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model IssuedBook {
+model BorrowedBook {
   id           Int       @id @default(autoincrement())
   student      Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
   studentId    Int
-  book         Book      @relation(fields: [bookId], references: [id])
+  book         Book      @relation(fields: [bookId], references: [id], onDelete: Cascade)
   bookId       Int
   dueDate      DateTime
   returnedDate DateTime?
