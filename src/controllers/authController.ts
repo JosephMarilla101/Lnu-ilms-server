@@ -29,6 +29,29 @@ export const adminLogin = async (req: Request, res: Response) => {
   }
 };
 
+export const studentLogin = async (req: Request, res: Response) => {
+  try {
+    const { email, password } = req.body;
+
+    const Schema = z.object({
+      email: z
+        .string({ required_error: 'Email is required' })
+        .min(1, 'Email is required'),
+      password: z.string({ required_error: 'Password is required' }),
+    });
+
+    const validated = Schema.parse({ email, password });
+
+    const user = await authServices.studentLogin(validated);
+
+    const token = tokenGenerator(user);
+
+    return res.status(200).json({ user, token });
+  } catch (error) {
+    errHandler(error, res);
+  }
+};
+
 export const authenticateUser = async (
   req: AuthenticatedRequest,
   res: Response

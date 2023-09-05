@@ -1,5 +1,6 @@
 const whitelist = [
   'http://localhost:5173',
+  'http://localhost:8081',
   'https://zippy-starlight-26ce2f.netlify.app',
 ];
 
