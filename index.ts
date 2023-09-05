@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import corsOption from './src/config/cors';
 import authRoutes from './src/routes/authRoutes';
+import studentRoutes from './src/routes/studentRoutes';
 import authorRoutes from './src/routes/authorRoutes';
 import categoryRoutes from './src/routes/categoryRoutes';
 import bookRoutes from './src/routes/bookRoutes';
@@ -14,7 +15,6 @@ To run server on local network, get the ipv4 address
 of your machine and change the LOCAL_IP env value 
 */
 const NETWORK_ADDRESS = `${process.env.LOCAL_IP}:${PORT}`;
-const IP = process.env.LOCAL_IP === 'DEVELOPMENT' ? '0.0.0.0' : '';
 
 const app = express();
 const prisma = new PrismaClient();
@@ -22,17 +22,30 @@ const prisma = new PrismaClient();
 app.use(cors(corsOption));
 app.use(express.json());
 
-app.listen(PORT, IP, async () => {
-  try {
-    await prisma.$connect();
-    console.log(`Server running on port ${PORT}`);
-    console.log(`Server running on ${NETWORK_ADDRESS}`);
-  } catch (error) {
-    console.log(error);
-    await prisma.$disconnect();
-    process.exit(1);
-  }
-});
+if (process.env.ENVIRONMENT === 'DEVELOPMENT') {
+  app.listen(PORT, '0.0.0.0', async () => {
+    try {
+      await prisma.$connect();
+      console.log(`Server running on port ${PORT}`);
+      console.log(`Server running on ${NETWORK_ADDRESS}`);
+    } catch (error) {
+      console.log(error);
+      await prisma.$disconnect();
+      process.exit(1);
+    }
+  });
+} else {
+  app.listen(PORT, async () => {
+    try {
+      await prisma.$connect();
+      console.log(`Server running on port ${PORT}`);
+    } catch (error) {
+      console.log(error);
+      await prisma.$disconnect();
+      process.exit(1);
+    }
+  });
+}
 
 // api routes
 app.all('/api', (req, res) => {
@@ -40,6 +53,7 @@ app.all('/api', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/student', studentRoutes);
 app.use('/api/author', authorRoutes);
 app.use('/api/category', categoryRoutes);
 app.use('/api/book', bookRoutes);
