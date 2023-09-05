@@ -9,16 +9,24 @@ import bookRoutes from './src/routes/bookRoutes';
 import { PrismaClient } from '@prisma/client';
 
 const PORT: number = parseInt(process.env.PORT as string) || 5000;
+/* 
+To run server on local network, get the ipv4 address 
+of your machine and change the LOCAL_IP env value 
+*/
+const NETWORK_ADDRESS = `${process.env.LOCAL_IP}:${PORT}`;
+const IP = process.env.LOCAL_IP === 'DEVELOPMENT' ? '0.0.0.0' : '';
+
 const app = express();
 const prisma = new PrismaClient();
 
 app.use(cors(corsOption));
 app.use(express.json());
 
-app.listen(PORT, async () => {
+app.listen(PORT, IP, async () => {
   try {
     await prisma.$connect();
     console.log(`Server running on port ${PORT}`);
+    console.log(`Server running on ${NETWORK_ADDRESS}`);
   } catch (error) {
     console.log(error);
     await prisma.$disconnect();
