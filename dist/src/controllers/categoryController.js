@@ -35,97 +35,98 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getActiveAuthors = exports.getALLAuthors = exports.getAuthor = exports.deleteAuthor = exports.updateAuthor = exports.createAuthor = void 0;
+exports.getActiveCategories = exports.getALLCategories = exports.getCategory = exports.deleteCategory = exports.updateCategory = exports.createCategory = void 0;
 const zod_1 = __importDefault(require("zod"));
 const errorHandler_1 = __importDefault(require("../middlewares/errorHandler"));
-const authorServices = __importStar(require("../services/authorServices"));
+const categoryServices = __importStar(require("../services/categoryServices"));
 const customError_1 = __importDefault(require("../utils/customError"));
-const createAuthor = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const createCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { name } = req.body;
+        const { name, status } = req.body;
         const Schema = zod_1.default.object({
             name: zod_1.default.string({ required_error: 'Author name is required.' }),
+            status: zod_1.default.boolean({ required_error: 'Category status is required.' }),
         });
-        const validated = Schema.parse({ name });
-        const author = yield authorServices.createAuthor(validated.name);
-        return res.status(200).json(author);
+        const validated = Schema.parse({ name, status });
+        const category = yield categoryServices.createCategory(validated);
+        return res.status(200).json(category);
     }
     catch (error) {
         (0, errorHandler_1.default)(error, res);
     }
 });
-exports.createAuthor = createAuthor;
-const updateAuthor = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.createCategory = createCategory;
+const updateCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id, name, status } = req.body;
         const Schema = zod_1.default.object({
-            id: zod_1.default.number({ required_error: 'Author ID is required.' }),
-            name: zod_1.default.string({ required_error: 'Author name is required.' }),
-            status: zod_1.default.boolean({ required_error: 'Author status is required.' }),
+            id: zod_1.default.number({ required_error: 'Category ID is required.' }),
+            name: zod_1.default.string({ required_error: 'Category name is required.' }),
+            status: zod_1.default.boolean({ required_error: 'Category status is required.' }),
         });
         const validated = Schema.parse({ id, name, status });
-        const author = yield authorServices.updateAuthor(validated);
-        return res.status(200).json(author);
+        const category = yield categoryServices.updateCategory(validated);
+        return res.status(200).json(category);
     }
     catch (error) {
         (0, errorHandler_1.default)(error, res);
     }
 });
-exports.updateAuthor = updateAuthor;
-const deleteAuthor = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.updateCategory = updateCategory;
+const deleteCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.body;
         const Schema = zod_1.default.object({
-            id: zod_1.default.number({ required_error: 'Author ID is required.' }),
+            id: zod_1.default.number({ required_error: 'Category ID is required.' }),
         });
         const validated = Schema.parse({ id });
-        const author = yield authorServices.deleteAuthor(validated.id);
-        return res.status(200).json(author);
+        const category = yield categoryServices.deleteCategory(validated.id);
+        return res.status(200).json(category);
     }
     catch (error) {
         (0, errorHandler_1.default)(error, res);
     }
 });
-exports.deleteAuthor = deleteAuthor;
-const getAuthor = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.deleteCategory = deleteCategory;
+const getCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const id = req.query.id;
         const Schema = zod_1.default.object({
             id: zod_1.default
                 .string({
-                required_error: 'Author ID is required.',
-                invalid_type_error: 'Author ID is not a valid ID.',
+                required_error: 'Category ID is required.',
+                invalid_type_error: 'Category ID is not a valid ID.',
             })
                 .transform((value) => parseInt(value)),
         });
         const validated = Schema.parse({ id });
         if (!validated.id)
-            throw new customError_1.default(403, 'Author ID is required.');
-        const author = yield authorServices.getAuthor(validated.id);
-        return res.status(200).json(author);
+            throw new customError_1.default(403, 'Category ID is required.');
+        const category = yield categoryServices.getCategory(validated.id);
+        return res.status(200).json(category);
     }
     catch (error) {
         (0, errorHandler_1.default)(error, res);
     }
 });
-exports.getAuthor = getAuthor;
-const getALLAuthors = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.getCategory = getCategory;
+const getALLCategories = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const authors = yield authorServices.getALLAuthors();
-        return res.status(200).json(authors);
+        const category = yield categoryServices.getALLCategories();
+        return res.status(200).json(category);
     }
     catch (error) {
         (0, errorHandler_1.default)(error, res);
     }
 });
-exports.getALLAuthors = getALLAuthors;
-const getActiveAuthors = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.getALLCategories = getALLCategories;
+const getActiveCategories = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const authors = yield authorServices.getActiveAuthors();
-        return res.status(200).json(authors);
+        const category = yield categoryServices.getActiveCategories();
+        return res.status(200).json(category);
     }
     catch (error) {
         (0, errorHandler_1.default)(error, res);
     }
 });
-exports.getActiveAuthors = getActiveAuthors;
+exports.getActiveCategories = getActiveCategories;

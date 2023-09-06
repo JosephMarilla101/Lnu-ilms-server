@@ -24,10 +24,10 @@ const adminLogin = ({ username, password, }) => __awaiter(void 0, void 0, void 0
         },
     });
     if (!admin)
-        throw new customError_1.default(401, 'Invalid username or password');
+        throw new customError_1.default(401, 'Invalid username or password.');
     const passwordMatch = bcrypt_1.default.compareSync(password, admin.password);
     if (!passwordMatch)
-        throw new customError_1.default(401, 'Invalid username or password');
+        throw new customError_1.default(401, 'Invalid username or password.');
     return admin;
 });
 exports.adminLogin = adminLogin;
@@ -38,10 +38,10 @@ const librarianLogin = ({ email, password, }) => __awaiter(void 0, void 0, void 
         },
     });
     if (!librarian)
-        throw new customError_1.default(401, 'Invalid email or password');
+        throw new customError_1.default(401, 'Invalid email or password.');
     const passwordMatch = bcrypt_1.default.compareSync(password, librarian.password);
     if (!passwordMatch)
-        throw new customError_1.default(401, 'Invalid email or password');
+        throw new customError_1.default(401, 'Invalid email or password.');
     return librarian;
 });
 exports.librarianLogin = librarianLogin;
@@ -52,10 +52,10 @@ const studentLogin = ({ email, password, }) => __awaiter(void 0, void 0, void 0,
         },
     });
     if (!student)
-        throw new customError_1.default(401, 'Invalid email or password');
+        throw new customError_1.default(401, 'Invalid email or password.');
     const passwordMatch = bcrypt_1.default.compareSync(password, student.password);
     if (!passwordMatch)
-        throw new customError_1.default(401, 'Invalid email or password');
+        throw new customError_1.default(401, 'Invalid email or password.');
     return student;
 });
 exports.studentLogin = studentLogin;

@@ -17,7 +17,7 @@ const jwtVerifier = async (
     const token = req.header('Authorization')?.replace('Bearer ', '');
 
     if (!token) {
-      throw new customeError(401, 'Unauthorize, No token');
+      throw new customeError(401, 'Unauthorize, No token.');
     }
 
     const decoded = jwt.verify(

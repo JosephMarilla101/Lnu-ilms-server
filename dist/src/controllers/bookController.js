@@ -35,59 +35,56 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getActiveAuthors = exports.getALLAuthors = exports.getAuthor = exports.deleteAuthor = exports.updateAuthor = exports.createAuthor = void 0;
+exports.getBookList = exports.getBook = exports.createBook = void 0;
 const zod_1 = __importDefault(require("zod"));
+const bookServices = __importStar(require("../services/bookServices"));
 const errorHandler_1 = __importDefault(require("../middlewares/errorHandler"));
-const authorServices = __importStar(require("../services/authorServices"));
 const customError_1 = __importDefault(require("../utils/customError"));
-const createAuthor = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const createBook = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { name } = req.body;
+        const { name, bookCover, bookCoverId, authorId, categoryIds, copies } = req.body;
+        const isbn = yield generateUniqueISBN();
         const Schema = zod_1.default.object({
-            name: zod_1.default.string({ required_error: 'Author name is required.' }),
+            name: zod_1.default
+                .string({ required_error: 'Book name is required.' })
+                .min(1, 'Book name is required.'),
+            bookCover: zod_1.default
+                .string({ invalid_type_error: 'Book Cover must be a string.' })
+                .optional(),
+            bookCoverId: zod_1.default
+                .string({ invalid_type_error: 'Book Cover ID must be a string.' })
+                .optional(),
+            authorId: zod_1.default.number({
+                required_error: 'Book Author is required.',
+            }),
+            categoryIds: zod_1.default
+                .array(zod_1.default.number({
+                required_error: 'Book Category is required.',
+            }))
+                .refine((ids) => ids.length >= 1, {
+                message: 'Please select at least 1 book category',
+            }),
+            copies: zod_1.default.number(),
+            isbn: zod_1.default.number({ invalid_type_error: 'ISBN must be a unique number.' }),
         });
-        const validated = Schema.parse({ name });
-        const author = yield authorServices.createAuthor(validated.name);
-        return res.status(200).json(author);
+        const validated = Schema.parse({
+            name,
+            bookCover,
+            bookCoverId,
+            authorId,
+            categoryIds,
+            copies,
+            isbn,
+        });
+        const book = yield bookServices.createBook(validated);
+        return res.status(200).json(book);
     }
     catch (error) {
         (0, errorHandler_1.default)(error, res);
     }
 });
-exports.createAuthor = createAuthor;
-const updateAuthor = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { id, name, status } = req.body;
-        const Schema = zod_1.default.object({
-            id: zod_1.default.number({ required_error: 'Author ID is required.' }),
-            name: zod_1.default.string({ required_error: 'Author name is required.' }),
-            status: zod_1.default.boolean({ required_error: 'Author status is required.' }),
-        });
-        const validated = Schema.parse({ id, name, status });
-        const author = yield authorServices.updateAuthor(validated);
-        return res.status(200).json(author);
-    }
-    catch (error) {
-        (0, errorHandler_1.default)(error, res);
-    }
-});
-exports.updateAuthor = updateAuthor;
-const deleteAuthor = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { id } = req.body;
-        const Schema = zod_1.default.object({
-            id: zod_1.default.number({ required_error: 'Author ID is required.' }),
-        });
-        const validated = Schema.parse({ id });
-        const author = yield authorServices.deleteAuthor(validated.id);
-        return res.status(200).json(author);
-    }
-    catch (error) {
-        (0, errorHandler_1.default)(error, res);
-    }
-});
-exports.deleteAuthor = deleteAuthor;
-const getAuthor = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.createBook = createBook;
+const getBook = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const id = req.query.id;
         const Schema = zod_1.default.object({
@@ -101,31 +98,45 @@ const getAuthor = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const validated = Schema.parse({ id });
         if (!validated.id)
             throw new customError_1.default(403, 'Author ID is required.');
-        const author = yield authorServices.getAuthor(validated.id);
-        return res.status(200).json(author);
+        const book = yield bookServices.getBook(validated.id);
+        return res.status(200).json(book);
     }
     catch (error) {
         (0, errorHandler_1.default)(error, res);
     }
 });
-exports.getAuthor = getAuthor;
-const getALLAuthors = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.getBook = getBook;
+const getBookList = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const authors = yield authorServices.getALLAuthors();
-        return res.status(200).json(authors);
+        const myCursor = req.params.cursor;
+        const Schema = zod_1.default.object({
+            myCursor: zod_1.default
+                .string()
+                .transform((value) => parseInt(value))
+                .optional(),
+        });
+        const validated = Schema.parse({ myCursor });
+        const bookList = yield bookServices.getBookList(validated);
+        return res.status(200).json(bookList);
     }
     catch (error) {
         (0, errorHandler_1.default)(error, res);
     }
 });
-exports.getALLAuthors = getALLAuthors;
-const getActiveAuthors = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const authors = yield authorServices.getActiveAuthors();
-        return res.status(200).json(authors);
-    }
-    catch (error) {
-        (0, errorHandler_1.default)(error, res);
+exports.getBookList = getBookList;
+const generateUniqueISBN = () => __awaiter(void 0, void 0, void 0, function* () {
+    while (true) {
+        const isbn = generateRandom9DigitNumber();
+        const isUnique = yield bookServices.checkUniqueIsbn(isbn);
+        if (isUnique) {
+            return isbn;
+        }
     }
 });
-exports.getActiveAuthors = getActiveAuthors;
+function generateRandom9DigitNumber() {
+    let randomNumber = '';
+    for (let i = 0; i < 9; i++) {
+        randomNumber += Math.floor(Math.random() * 10);
+    }
+    return parseInt(randomNumber);
+}

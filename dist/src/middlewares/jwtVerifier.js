@@ -20,7 +20,7 @@ const jwtVerifier = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
     try {
         const token = (_a = req.header('Authorization')) === null || _a === void 0 ? void 0 : _a.replace('Bearer ', '');
         if (!token) {
-            throw new customError_1.default(401, 'Unauthorize, No token');
+            throw new customError_1.default(401, 'Unauthorize, No token.');
         }
         const decoded = jsonwebtoken_1.default.verify(token, process.env.SECRET_KEY);
         req.user = decoded;

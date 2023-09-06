@@ -57,7 +57,7 @@ export const deleteCategory = async (id: number): Promise<Category> => {
     },
   });
 
-  if (!category) throw new customeError(404, 'Category not found');
+  if (!category) throw new customeError(404, 'Category not found.');
 
   const date = new Date();
 
@@ -81,7 +81,7 @@ export const getCategory = async (id: number): Promise<Category> => {
     },
   });
 
-  if (!category) throw new customeError(404, 'Category not found');
+  if (!category) throw new customeError(404, 'Category not found.');
 
   return category;
 };

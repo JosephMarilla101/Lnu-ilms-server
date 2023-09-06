@@ -47,8 +47,6 @@ if (process.env.ENVIRONMENT === 'DEVELOPMENT') {
   });
 }
 
-console.log('test');
-
 // api routes
 app.all('/api', (req, res) => {
   res.status(200).send('Welcome to LNU-ILMS api');

@@ -22,6 +22,7 @@ export const studentRegistration = async ({
   password: string;
 }): Promise<Student> => {
   await isUniqueStudentId(studentId);
+  await isUniqueEmail(email);
 
   const hashPassword = bcrypt.hashSync(password, 10);
 
@@ -69,5 +70,15 @@ const isUniqueStudentId = async (studentId: number) => {
     },
   });
 
-  if (student) throw new customeError(403, 'Student ID is not valid');
+  if (student) throw new customeError(403, 'Student ID is not valid.');
+};
+
+const isUniqueEmail = async (email: string) => {
+  const student = await prisma.student.findUnique({
+    where: {
+      email,
+    },
+  });
+
+  if (student) throw new customeError(403, 'Email address is already in use.');
 };

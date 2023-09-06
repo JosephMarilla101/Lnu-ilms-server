@@ -17,12 +17,12 @@ export const adminLogin = async ({
     },
   });
 
-  if (!admin) throw new customeError(401, 'Invalid username or password');
+  if (!admin) throw new customeError(401, 'Invalid username or password.');
 
   const passwordMatch = bcrypt.compareSync(password, admin.password);
 
   if (!passwordMatch)
-    throw new customeError(401, 'Invalid username or password');
+    throw new customeError(401, 'Invalid username or password.');
 
   return admin;
 };
@@ -40,11 +40,11 @@ export const librarianLogin = async ({
     },
   });
 
-  if (!librarian) throw new customeError(401, 'Invalid email or password');
+  if (!librarian) throw new customeError(401, 'Invalid email or password.');
 
   const passwordMatch = bcrypt.compareSync(password, librarian.password);
 
-  if (!passwordMatch) throw new customeError(401, 'Invalid email or password');
+  if (!passwordMatch) throw new customeError(401, 'Invalid email or password.');
 
   return librarian;
 };

@@ -35,7 +35,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.authenticateUser = exports.adminLogin = void 0;
+exports.authenticateUser = exports.studentLogin = exports.adminLogin = void 0;
 const zod_1 = __importDefault(require("zod"));
 const errorHandler_1 = __importDefault(require("../middlewares/errorHandler"));
 const authServices = __importStar(require("../services/authServices"));
@@ -46,9 +46,9 @@ const adminLogin = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         const { username, password } = req.body;
         const Schema = zod_1.default.object({
             username: zod_1.default
-                .string({ required_error: 'Username is required' })
+                .string({ required_error: 'Username is required.' })
                 .min(1, 'Username is required'),
-            password: zod_1.default.string({ required_error: 'Password is required' }),
+            password: zod_1.default.string({ required_error: 'Password is required.' }),
         });
         const validated = Schema.parse({ username, password });
         const user = yield authServices.adminLogin(validated);
@@ -60,6 +60,25 @@ const adminLogin = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.adminLogin = adminLogin;
+const studentLogin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { email, password } = req.body;
+        const Schema = zod_1.default.object({
+            email: zod_1.default
+                .string({ required_error: 'Email is required.' })
+                .min(1, 'Email is required.'),
+            password: zod_1.default.string({ required_error: 'Password is required.' }),
+        });
+        const validated = Schema.parse({ email, password });
+        const user = yield authServices.studentLogin(validated);
+        const token = (0, tokenGenerator_1.default)(user);
+        return res.status(200).json({ user, token });
+    }
+    catch (error) {
+        (0, errorHandler_1.default)(error, res);
+    }
+});
+exports.studentLogin = studentLogin;
 const authenticateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = req.user;
@@ -75,7 +94,7 @@ const authenticateUser = (req, res) => __awaiter(void 0, void 0, void 0, functio
             const auth = yield authServices.findStudent(user.id);
             return res.status(200).json(auth);
         }
-        throw new customError_1.default(404, 'Unauthorize');
+        throw new customError_1.default(404, 'Unauthorize.');
     }
     catch (error) {
         (0, errorHandler_1.default)(error, res);

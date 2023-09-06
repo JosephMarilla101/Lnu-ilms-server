@@ -9,4 +9,5 @@ const authController_1 = require("../controllers/authController");
 const authRouter = express_1.default.Router();
 authRouter.get('/', jwtVerifier_1.default, authController_1.authenticateUser);
 authRouter.post('/login/admin', authController_1.adminLogin);
+authRouter.post('/login/student', authController_1.studentLogin);
 exports.default = authRouter;

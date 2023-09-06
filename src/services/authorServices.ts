@@ -50,7 +50,7 @@ export const deleteAuthor = async (id: number): Promise<Author> => {
     },
   });
 
-  if (!author) throw new customeError(404, 'Author not found');
+  if (!author) throw new customeError(404, 'Author not found.');
 
   const date = new Date();
 
@@ -74,7 +74,7 @@ export const getAuthor = async (id: number): Promise<Author> => {
     },
   });
 
-  if (!author) throw new customeError(404, 'Author not found');
+  if (!author) throw new customeError(404, 'Author not found.');
 
   return author;
 };

@@ -13,8 +13,8 @@ export const createCategory = async (
     const { name, status } = req.body;
 
     const Schema = z.object({
-      name: z.string({ required_error: 'Author name is required' }),
-      status: z.boolean({ required_error: 'Category status is required' }),
+      name: z.string({ required_error: 'Author name is required.' }),
+      status: z.boolean({ required_error: 'Category status is required.' }),
     });
 
     const validated = Schema.parse({ name, status });
@@ -35,9 +35,9 @@ export const updateCategory = async (
     const { id, name, status } = req.body;
 
     const Schema = z.object({
-      id: z.number({ required_error: 'Category ID is required' }),
-      name: z.string({ required_error: 'Category name is required' }),
-      status: z.boolean({ required_error: 'Category status is required' }),
+      id: z.number({ required_error: 'Category ID is required.' }),
+      name: z.string({ required_error: 'Category name is required.' }),
+      status: z.boolean({ required_error: 'Category status is required.' }),
     });
 
     const validated = Schema.parse({ id, name, status });
@@ -58,7 +58,7 @@ export const deleteCategory = async (
     const { id } = req.body;
 
     const Schema = z.object({
-      id: z.number({ required_error: 'Category ID is required' }),
+      id: z.number({ required_error: 'Category ID is required.' }),
     });
 
     const validated = Schema.parse({ id });
@@ -78,15 +78,15 @@ export const getCategory = async (req: AuthenticatedRequest, res: Response) => {
     const Schema = z.object({
       id: z
         .string({
-          required_error: 'Category ID is required',
-          invalid_type_error: 'Category ID is not a valid ID',
+          required_error: 'Category ID is required.',
+          invalid_type_error: 'Category ID is not a valid ID.',
         })
         .transform((value) => parseInt(value)),
     });
 
     const validated = Schema.parse({ id });
 
-    if (!validated.id) throw new customeError(403, 'Category ID is required');
+    if (!validated.id) throw new customeError(403, 'Category ID is required.');
 
     const category = await categoryServices.getCategory(validated.id);
 

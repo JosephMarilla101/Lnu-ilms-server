@@ -20,29 +20,29 @@ export const studentRegistration = async (req: Request, res: Response) => {
     const Schema = z
       .object({
         studentId: z
-          .string({ required_error: 'Student ID is required' })
+          .string({ required_error: 'Student ID is required.' })
           .min(4, {
             message: 'Student ID must be at least 4 characters.',
           })
-          .max(8, { message: 'Student ID must not exceed 8 characters' })
+          .max(8, { message: 'Student ID must not exceed 8 characters.' })
           .transform((value) => parseInt(value)),
         email: z.string({ required_error: 'Email is required' }).email(),
-        fullname: z.string({ required_error: 'Full Name is required' }),
-        course: z.string({ required_error: 'Course is required' }),
-        college: z.string({ required_error: 'College is required' }),
-        mobile: z.string({ required_error: 'Mobile number is required' }),
+        fullname: z.string({ required_error: 'Full Name is required.' }),
+        course: z.string({ required_error: 'Course is required.' }),
+        college: z.string({ required_error: 'College is required.' }),
+        mobile: z.string({ required_error: 'Mobile number is required.' }),
         password: z
-          .string({ required_error: 'Password is required' })
-          .min(6, 'Password must contain at least 6 character(s)')
+          .string({ required_error: 'Password is required.' })
+          .min(6, 'Password must contain at least 6 character(s).')
           .transform((value) => value.trim()),
         password_confirmation: z
           .string({
-            required_error: 'Password confimation is required',
+            required_error: 'Password confimation is required.',
           })
           .transform((value) => value.trim()),
       })
       .refine((data) => data.password === data.password_confirmation, {
-        message: 'Passwords do not match',
+        message: 'Passwords do not match.',
         path: ['password_confirmation'],
       });
 
@@ -58,7 +58,7 @@ export const studentRegistration = async (req: Request, res: Response) => {
     });
 
     if (!validated.studentId)
-      throw new customeError(403, 'Student ID is not a valid ID');
+      throw new customeError(403, 'Student ID is not a valid ID.');
 
     const student = await studentServices.studentRegistration(validated);
 

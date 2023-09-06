@@ -63,15 +63,15 @@ export const getBook = async (req: AuthenticatedRequest, res: Response) => {
     const Schema = z.object({
       id: z
         .string({
-          required_error: 'Author ID is required',
-          invalid_type_error: 'Author ID is not a valid ID',
+          required_error: 'Author ID is required.',
+          invalid_type_error: 'Author ID is not a valid ID.',
         })
         .transform((value) => parseInt(value)),
     });
 
     const validated = Schema.parse({ id });
 
-    if (!validated.id) throw new customeError(403, 'Author ID is required');
+    if (!validated.id) throw new customeError(403, 'Author ID is required.');
 
     const book = await bookServices.getBook(validated.id);
 

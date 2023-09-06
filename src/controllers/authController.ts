@@ -12,9 +12,9 @@ export const adminLogin = async (req: Request, res: Response) => {
 
     const Schema = z.object({
       username: z
-        .string({ required_error: 'Username is required' })
+        .string({ required_error: 'Username is required.' })
         .min(1, 'Username is required'),
-      password: z.string({ required_error: 'Password is required' }),
+      password: z.string({ required_error: 'Password is required.' }),
     });
 
     const validated = Schema.parse({ username, password });
@@ -77,7 +77,7 @@ export const authenticateUser = async (
       return res.status(200).json(auth);
     }
 
-    throw new customeError(404, 'Unauthorize');
+    throw new customeError(404, 'Unauthorize.');
   } catch (error) {
     errHandler(error, res);
   }
