@@ -35,9 +35,9 @@ export const studentLogin = async (req: Request, res: Response) => {
 
     const Schema = z.object({
       email: z
-        .string({ required_error: 'Email is required' })
-        .min(1, 'Email is required'),
-      password: z.string({ required_error: 'Password is required' }),
+        .string({ required_error: 'Email is required.' })
+        .min(1, 'Email is required.'),
+      password: z.string({ required_error: 'Password is required.' }),
     });
 
     const validated = Schema.parse({ email, password });

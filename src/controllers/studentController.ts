@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { AuthenticatedRequest } from '../middlewares/jwtVerifier';
 import z from 'zod';
 import errHandler from '../middlewares/errorHandler';
 import * as studentServices from '../services/studentServices';

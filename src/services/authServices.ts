@@ -62,11 +62,11 @@ export const studentLogin = async ({
     },
   });
 
-  if (!student) throw new customeError(401, 'Invalid email or password');
+  if (!student) throw new customeError(401, 'Invalid email or password.');
 
   const passwordMatch = bcrypt.compareSync(password, student.password);
 
-  if (!passwordMatch) throw new customeError(401, 'Invalid email or password');
+  if (!passwordMatch) throw new customeError(401, 'Invalid email or password.');
 
   return student;
 };
