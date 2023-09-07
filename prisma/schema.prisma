@@ -17,11 +17,13 @@ enum UserRoles {
 }
 
 model Admin {
-  id       Int       @id @default(autoincrement())
-  role     UserRoles @default(ADMIN)
-  email    String    @unique
-  username String    @unique
-  password String
+  id        Int       @id @default(autoincrement())
+  role      UserRoles @default(ADMIN)
+  email     String    @unique
+  username  String    @unique
+  password  String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Librarian {
@@ -30,13 +32,15 @@ model Librarian {
   employeeId Int       @unique
   email      String    @unique
   password   String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 }
 
 model Student {
-  id             Int            @id @default(autoincrement())
-  role           UserRoles      @default(STUDENT)
-  studentId      Int            @unique
-  email          String         @unique
+  id             Int             @id @default(autoincrement())
+  role           UserRoles       @default(STUDENT)
+  studentId      Int             @unique
+  email          String          @unique
   fullname       String
   profilePhoto   String?
   profilePhotoId String?
@@ -45,6 +49,9 @@ model Student {
   mobile         String
   password       String
   borrowedBooks  BorrowedBook[]
+  borrowRequests BorrowRequest[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
 }
 
 model Author {
@@ -70,20 +77,36 @@ model Category {
 }
 
 model Book {
-  id          Int            @id @default(autoincrement())
-  isbn        Int            @unique
-  name        String
-  bookCover   String?
-  bookCoverId String?
-  author      Author         @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  authorId    Int
-  category    Category[]
-  copies      Int            @default(1)
-  borrowedBy  BorrowedBook[]
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
+  id             Int             @id @default(autoincrement())
+  isbn           Int             @unique
+  name           String
+  bookCover      String?
+  bookCoverId    String?
+  author         Author          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId       Int
+  category       Category[]
+  copies         Int             @default(1)
+  borrowedBy     BorrowedBook[]
+  borrowRequests BorrowRequest[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
 
   @@index([authorId])
+}
+
+model BorrowRequest {
+  id          Int      @id @default(autoincrement())
+  student     Student  @relation(fields: [studentId], references: [id])
+  studentId   Int
+  book        Book     @relation(fields: [bookId], references: [id])
+  bookId      Int
+  requestDate DateTime @default(now())
+  isApproved  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([studentId])
+  @@index([bookId])
 }
 
 model BorrowedBook {

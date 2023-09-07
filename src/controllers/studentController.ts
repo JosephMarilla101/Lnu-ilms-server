@@ -28,8 +28,12 @@ export const studentRegistration = async (req: Request, res: Response) => {
           .transform((value) => parseInt(value)),
         email: z.string({ required_error: 'Email is required' }).email(),
         fullname: z.string({ required_error: 'Full Name is required.' }),
-        course: z.string({ required_error: 'Course is required.' }),
-        college: z.string({ required_error: 'College is required.' }),
+        course: z.string({ required_error: 'Course is required.' }).min(1, {
+          message: 'Course is required.',
+        }),
+        college: z.string({ required_error: 'College is required.' }).min(1, {
+          message: 'College is required.',
+        }),
         mobile: z.string({ required_error: 'Mobile number is required.' }),
         password: z
           .string({ required_error: 'Password is required.' })

@@ -81,15 +81,38 @@ export const getBook = async (req: AuthenticatedRequest, res: Response) => {
   }
 };
 
-export const getBookList = async (req: AuthenticatedRequest, res: Response) => {
+export const requestBook = async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const myCursor = req.params.cursor;
+    const { bookId } = req.body;
+    const studentId = req.user?.id;
 
     const Schema = z.object({
-      myCursor: z
-        .string()
-        .transform((value) => parseInt(value))
-        .optional(),
+      bookId: z.number({
+        required_error: 'Book ID is required.',
+        invalid_type_error: 'Book ID is not a valid ID.',
+      }),
+      studentId: z.number({
+        required_error: 'Student ID is required.',
+        invalid_type_error: 'Student ID is not a valid ID.',
+      }),
+    });
+
+    const validated = Schema.parse({ bookId, studentId });
+
+    const request = await bookServices.requestBook(validated);
+
+    return res.status(200).json(request);
+  } catch (error) {
+    errHandler(error, res);
+  }
+};
+
+export const getBookList = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const myCursor = req.query.cursor;
+
+    const Schema = z.object({
+      myCursor: z.string().transform((value) => parseInt(value)),
     });
 
     const validated = Schema.parse({ myCursor });

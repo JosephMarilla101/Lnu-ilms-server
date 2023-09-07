@@ -77,7 +77,7 @@ export const getBookList = async ({
 }) => {
   const booksId = await prisma.book.findMany({
     skip: myCursor ? 1 : 0,
-    take: 20,
+    take: 10,
     ...(myCursor && {
       cursor: {
         id: myCursor,
@@ -92,6 +92,32 @@ export const getBookList = async ({
   });
 
   return booksId;
+};
+
+export const requestBook = async ({
+  bookId,
+  studentId,
+}: {
+  bookId: number;
+  studentId: number;
+}) => {
+  const hasRequested = await prisma.borrowRequest.findFirst({
+    where: {
+      studentId,
+    },
+  });
+
+  if (hasRequested)
+    throw new customeError(401, 'Cannot request multiple books at a time');
+
+  const request = await prisma.borrowRequest.create({
+    data: {
+      bookId,
+      studentId,
+    },
+  });
+
+  return request;
 };
 
 export const checkUniqueIsbn = async (isbn: number): Promise<boolean> => {

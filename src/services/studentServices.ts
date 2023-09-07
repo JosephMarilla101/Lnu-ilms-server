@@ -41,28 +41,6 @@ export const studentRegistration = async ({
   return student;
 };
 
-export const studentLogin = async ({
-  email,
-  password,
-}: {
-  email: string;
-  password: string;
-}): Promise<Student> => {
-  const student = await prisma.student.findUnique({
-    where: {
-      email,
-    },
-  });
-
-  if (!student) throw new customeError(401, 'Invalid email or password.');
-
-  const passwordMatch = bcrypt.compareSync(password, student.password);
-
-  if (!passwordMatch) throw new customeError(401, 'Invalid email or password.');
-
-  return student;
-};
-
 const isUniqueStudentId = async (studentId: number) => {
   const student = await prisma.student.findUnique({
     where: {
