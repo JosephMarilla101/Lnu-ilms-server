@@ -81,6 +81,32 @@ export const getBook = async (req: AuthenticatedRequest, res: Response) => {
   }
 };
 
+export const getRequestedBook = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const studentId = req.user?.id;
+
+    const Schema = z.object({
+      studentId: z.number({
+        required_error: 'Student ID is required.',
+        invalid_type_error: 'Student ID is not a valid ID.',
+      }),
+    });
+
+    const validated = Schema.parse({ studentId });
+
+    const requestedBook = await bookServices.getRequestedBook(
+      validated.studentId
+    );
+
+    return res.status(200).json(requestedBook);
+  } catch (error) {
+    errHandler(error, res);
+  }
+};
+
 export const requestBook = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { bookId } = req.body;
@@ -99,7 +125,50 @@ export const requestBook = async (req: AuthenticatedRequest, res: Response) => {
 
     const validated = Schema.parse({ bookId, studentId });
 
+    const canBorrow = await bookServices.canBorrow(validated.studentId);
+
+    const canRequest = await bookServices.canRequest(validated.studentId);
+
+    if (!canBorrow)
+      return res
+        .status(403)
+        .json({ message: 'Cannot request book if you already borrowed one.' });
+
+    if (!canRequest)
+      return res.status(403).json({
+        message: 'Only one book can be requested or borrowed at a time.',
+      });
+
     const request = await bookServices.requestBook(validated);
+
+    return res.status(200).json(request);
+  } catch (error) {
+    errHandler(error, res);
+  }
+};
+
+export const cancelRequest = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const { bookId } = req.body;
+    const studentId = req.user?.id;
+
+    const Schema = z.object({
+      bookId: z.number({
+        required_error: 'Book ID is required.',
+        invalid_type_error: 'Book ID is not a valid ID.',
+      }),
+      studentId: z.number({
+        required_error: 'Student ID is required.',
+        invalid_type_error: 'Student ID is not a valid ID.',
+      }),
+    });
+
+    const validated = Schema.parse({ bookId, studentId });
+
+    const request = await bookServices.cancelRequest(validated);
 
     return res.status(200).json(request);
   } catch (error) {

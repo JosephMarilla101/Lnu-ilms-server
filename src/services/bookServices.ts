@@ -94,6 +94,22 @@ export const getBookList = async ({
   return booksId;
 };
 
+export const getRequestedBook = async (studentId: number) => {
+  const requestedBook = await prisma.borrowRequest.findFirst({
+    where: {
+      studentId,
+    },
+    select: {
+      book: true,
+      isApproved: true,
+      requestDate: true,
+      updatedAt: true,
+    },
+  });
+
+  return requestedBook;
+};
+
 export const requestBook = async ({
   bookId,
   studentId,
@@ -101,15 +117,6 @@ export const requestBook = async ({
   bookId: number;
   studentId: number;
 }) => {
-  const hasRequested = await prisma.borrowRequest.findFirst({
-    where: {
-      studentId,
-    },
-  });
-
-  if (hasRequested)
-    throw new customeError(401, 'Cannot request multiple books at a time');
-
   const request = await prisma.borrowRequest.create({
     data: {
       bookId,
@@ -118,6 +125,55 @@ export const requestBook = async ({
   });
 
   return request;
+};
+
+export const cancelRequest = async ({
+  bookId,
+  studentId,
+}: {
+  bookId: number;
+  studentId: number;
+}) => {
+  const request = await prisma.borrowRequest.findFirst({
+    where: {
+      studentId,
+      AND: {
+        bookId,
+      },
+    },
+  });
+
+  if (!request) throw new customeError(404, 'Book request cannot be found.');
+
+  await prisma.borrowRequest.delete({
+    where: {
+      id: request.id,
+    },
+  });
+
+  return request;
+};
+
+export const canBorrow = async (studentId: number): Promise<boolean> => {
+  const hasBorrowed = await prisma.borrowedBook.findFirst({
+    where: {
+      studentId,
+    },
+  });
+
+  if (hasBorrowed) return false;
+  else return true;
+};
+
+export const canRequest = async (studentId: number): Promise<boolean> => {
+  const hasRequested = await prisma.borrowRequest.findFirst({
+    where: {
+      studentId,
+    },
+  });
+
+  if (hasRequested) return false;
+  else return true;
 };
 
 export const checkUniqueIsbn = async (isbn: number): Promise<boolean> => {

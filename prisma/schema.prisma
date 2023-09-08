@@ -102,7 +102,6 @@ model BorrowRequest {
   bookId      Int
   requestDate DateTime @default(now())
   isApproved  Boolean  @default(false)
-  createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   @@index([studentId])
