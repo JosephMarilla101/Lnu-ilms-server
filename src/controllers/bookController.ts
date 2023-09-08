@@ -81,6 +81,19 @@ export const getBook = async (req: AuthenticatedRequest, res: Response) => {
   }
 };
 
+export const getALLRequestedBooks = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const books = await bookServices.getALLRequestedBooks();
+
+    return res.status(200).json(books);
+  } catch (error) {
+    errHandler(error, res);
+  }
+};
+
 export const getRequestedBook = async (
   req: AuthenticatedRequest,
   res: Response

@@ -1,4 +1,4 @@
-import { PrismaClient, Book } from '@prisma/client';
+import { PrismaClient, Book, BorrowRequest } from '@prisma/client';
 import customeError from '../utils/customError';
 
 const prisma = new PrismaClient();
@@ -66,6 +66,40 @@ export const getBook = async (id: number) => {
   });
 
   return book;
+};
+
+export const getALLRequestedBooks = async () => {
+  const requestBooks = await prisma.borrowRequest.findMany({
+    select: {
+      id: true,
+      book: {
+        select: {
+          name: true,
+          isbn: true,
+        },
+      },
+      student: {
+        select: {
+          studentId: true,
+        },
+      },
+      isApproved: true,
+      requestDate: true,
+    },
+  });
+
+  const flattenResult = requestBooks.map((data) => {
+    return {
+      id: data.id,
+      bookName: data.book.name,
+      isbn: data.book.isbn,
+      studentId: data.student.studentId,
+      isApproved: data.isApproved,
+      requestDate: data.requestDate,
+    };
+  });
+
+  return flattenResult;
 };
 
 export const getBookList = async ({

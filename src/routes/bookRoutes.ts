@@ -7,11 +7,13 @@ import {
   requestBook,
   cancelRequest,
   getRequestedBook,
+  getALLRequestedBooks,
 } from '../controllers/bookController';
 
 const bookRouter = express.Router();
 
 bookRouter.get('/', jwtVerifier, getBook);
+bookRouter.get('/requested/all', jwtVerifier, getALLRequestedBooks);
 bookRouter.get('/requested', jwtVerifier, getRequestedBook);
 bookRouter.get('/list', jwtVerifier, getBookList);
 bookRouter.post('/', jwtVerifier, createBook);
