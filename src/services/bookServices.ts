@@ -68,10 +68,103 @@ export const getBook = async (id: number) => {
   return book;
 };
 
+export const createBorrowedBook = async ({
+  dueDate,
+  requestId,
+}: {
+  dueDate: Date;
+  requestId: number;
+}) => {
+  const request = await prisma.borrowRequest.findFirstOrThrow({
+    where: {
+      id: requestId,
+    },
+  });
+
+  const book = await prisma.book.findUniqueOrThrow({
+    where: {
+      id: request.bookId,
+    },
+  });
+
+  if (book?.copies <= 0)
+    throw new customeError(403, 'No copies of the selected books is available');
+
+  await prisma.book.update({
+    where: {
+      id: book.id,
+    },
+    data: {
+      copies: {
+        decrement: 1,
+      },
+    },
+  });
+
+  await prisma.borrowRequest.update({
+    where: {
+      id: request.id,
+    },
+    data: {
+      isApproved: true,
+    },
+  });
+
+  const borrowedBook = await prisma.borrowedBook.create({
+    data: {
+      studentId: request.studentId,
+      bookId: request.bookId,
+      dueDate,
+    },
+  });
+
+  return borrowedBook;
+};
+
+export const getAllIssuedBooks = async () => {
+  const books = await prisma.borrowedBook.findMany({
+    select: {
+      id: true,
+      book: {
+        select: {
+          isbn: true,
+          name: true,
+        },
+      },
+      student: {
+        select: {
+          studentId: true,
+        },
+      },
+      dueDate: true,
+      returnedDate: true,
+      isReturn: true,
+      lateFee: true,
+    },
+  });
+
+  const flattenResult = books.map((data) => {
+    return {
+      id: data.id,
+      isbn: data.book.isbn.toString(), //convert to string in order to be searchable in data table
+      bookName: data.book.name,
+      studentId: data.student.studentId.toString(), //convert to string in order to be searchable in data table
+      dueDate: data.dueDate,
+      returnedData: data.returnedDate,
+      isReturn: data.isReturn,
+      lateFee: data.lateFee,
+    };
+  });
+
+  return flattenResult;
+};
+
 export const getALLRequestedBooks = async () => {
   const requestBooks = await prisma.borrowRequest.findMany({
     select: {
       id: true,
+      bookId: true,
+      studentId: true,
       book: {
         select: {
           name: true,
@@ -91,9 +184,11 @@ export const getALLRequestedBooks = async () => {
   const flattenResult = requestBooks.map((data) => {
     return {
       id: data.id,
+      bookId: data.bookId,
       bookName: data.book.name,
       isbn: data.book.isbn.toString(), //convert to string in order to be searchable in data table
       studentId: data.student.studentId.toString(), //convert to string in order to be searchable in data table
+      borrowerId: data.studentId,
       isApproved: data.isApproved,
       requestDate: data.requestDate,
     };
@@ -132,6 +227,9 @@ export const getRequestedBook = async (studentId: number) => {
   const requestedBook = await prisma.borrowRequest.findFirst({
     where: {
       studentId,
+      AND: {
+        isApproved: false,
+      },
     },
     select: {
       book: true,
@@ -151,6 +249,15 @@ export const requestBook = async ({
   bookId: number;
   studentId: number;
 }) => {
+  const book = await prisma.book.findUniqueOrThrow({
+    where: {
+      id: bookId,
+    },
+  });
+
+  if (book.copies <= 0)
+    throw new customeError(403, 'No copies of the selected books is available');
+
   const request = await prisma.borrowRequest.create({
     data: {
       bookId,
@@ -192,6 +299,9 @@ export const canBorrow = async (studentId: number): Promise<boolean> => {
   const hasBorrowed = await prisma.borrowedBook.findFirst({
     where: {
       studentId,
+      AND: {
+        isReturn: false,
+      },
     },
   });
 
@@ -203,6 +313,9 @@ export const canRequest = async (studentId: number): Promise<boolean> => {
   const hasRequested = await prisma.borrowRequest.findFirst({
     where: {
       studentId,
+      AND: {
+        isApproved: false,
+      },
     },
   });
 

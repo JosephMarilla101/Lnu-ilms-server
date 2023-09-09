@@ -6,6 +6,7 @@ async function main() {
   await adminSeeder();
   await authorSeeder();
   await categorySeeder();
+  await borrowedBookFeeSeeder();
 }
 
 main()
@@ -100,4 +101,22 @@ async function categorySeeder() {
   });
 
   console.log('Category table seeded successfully');
+}
+
+async function borrowedBookFeeSeeder() {
+  await prisma.borrowedBookFee.upsert({
+    where: {
+      id: 1,
+    },
+    update: {
+      initialFee: 80,
+      followingDateFee: 8,
+    },
+    create: {
+      initialFee: 80,
+      followingDateFee: 8,
+    },
+  });
+
+  console.log('Borrowed Book Fee table seeded successfully');
 }

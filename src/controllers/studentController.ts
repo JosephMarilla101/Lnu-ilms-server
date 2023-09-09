@@ -3,6 +3,7 @@ import z from 'zod';
 import errHandler from '../middlewares/errorHandler';
 import * as studentServices from '../services/studentServices';
 import customeError from '../utils/customError';
+import tokenGenerator from '../utils/tokenGenerator';
 
 export const studentRegistration = async (req: Request, res: Response) => {
   try {
@@ -26,7 +27,10 @@ export const studentRegistration = async (req: Request, res: Response) => {
           })
           .max(8, { message: 'Student ID must not exceed 8 characters.' })
           .transform((value) => parseInt(value)),
-        email: z.string({ required_error: 'Email is required' }).email(),
+        email: z
+          .string({ required_error: 'Email is required' })
+          .email()
+          .transform((value) => value.toLocaleLowerCase()),
         fullname: z.string({ required_error: 'Full Name is required.' }),
         course: z.string({ required_error: 'Course is required.' }).min(1, {
           message: 'Course is required.',
@@ -66,7 +70,9 @@ export const studentRegistration = async (req: Request, res: Response) => {
 
     const student = await studentServices.studentRegistration(validated);
 
-    return res.status(200).json(student);
+    const token = tokenGenerator(student);
+
+    return res.status(200).json({ user: student, token });
   } catch (error) {
     errHandler(error, res);
   }
