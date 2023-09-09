@@ -92,8 +92,8 @@ export const getALLRequestedBooks = async () => {
     return {
       id: data.id,
       bookName: data.book.name,
-      isbn: data.book.isbn,
-      studentId: data.student.studentId,
+      isbn: data.book.isbn.toString(), //convert to string in order to be searchable in data table
+      studentId: data.student.studentId.toString(), //convert to string in order to be searchable in data table
       isApproved: data.isApproved,
       requestDate: data.requestDate,
     };
