@@ -197,6 +197,30 @@ export const getUnreturnedBook = async (
   }
 };
 
+export const returnBorrowedBook = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const { borrowedBookId } = req.body;
+
+    const Schema = z.object({
+      borrowedBookId: z.number({
+        required_error: 'Borrowed Book ID is required.',
+        invalid_type_error: 'Borrowed Book ID is not a valid ID.',
+      }),
+    });
+
+    const validated = Schema.parse({ borrowedBookId });
+
+    const book = await bookServices.returnBorrowedBook(validated);
+
+    return res.status(200).json(book);
+  } catch (error) {
+    errHandler(error, res);
+  }
+};
+
 export const getAllIssuedBooks = async (
   req: AuthenticatedRequest,
   res: Response

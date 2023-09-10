@@ -4,6 +4,7 @@ import {
   BorrowRequest,
   BorrowedBookFee,
 } from '@prisma/client';
+import { format, parseISO, differenceInDays, isAfter } from 'date-fns';
 import customeError from '../utils/customError';
 
 const prisma = new PrismaClient();
@@ -162,7 +163,7 @@ export const getAllIssuedBooks = async () => {
       bookName: data.book.name,
       studentId: data.student.studentId.toString(), //convert to string in order to be searchable in data table
       dueDate: data.dueDate,
-      returnedData: data.returnedDate,
+      returnedDate: data.returnedDate,
       isReturn: data.isReturn,
       lateFee: data.lateFee,
       bookCover: data.book.bookCover,
@@ -277,6 +278,50 @@ export const getUnreturnedBook = async (studentId: number) => {
   return requestedBook;
 };
 
+export const returnBorrowedBook = async ({
+  borrowedBookId,
+}: {
+  borrowedBookId: number;
+}) => {
+  const borrowedBook = await prisma.borrowedBook.findFirstOrThrow({
+    where: {
+      id: borrowedBookId,
+      AND: {
+        isReturn: false,
+      },
+    },
+  });
+
+  const lateFee = await prisma.borrowedBookFee.findFirstOrThrow();
+
+  const fee = calculateLateFee(
+    borrowedBook.dueDate,
+    lateFee.initialFee,
+    lateFee.followingDateFee
+  );
+
+  // update book copies, borrowed book status, lateFee and return date
+  const updatedBorrowedBook = await prisma.borrowedBook.update({
+    where: {
+      id: borrowedBookId,
+    },
+    data: {
+      isReturn: true,
+      returnedDate: new Date(),
+      lateFee: fee,
+      book: {
+        update: {
+          copies: {
+            increment: 1,
+          },
+        },
+      },
+    },
+  });
+
+  return updatedBorrowedBook;
+};
+
 export const requestBook = async ({
   bookId,
   studentId,
@@ -366,4 +411,27 @@ export const checkUniqueIsbn = async (isbn: number): Promise<boolean> => {
   });
 
   return book ? false : true;
+};
+
+const calculateLateFee = (
+  dueDate: Date,
+  initialFee: number,
+  followingDateFee: number
+): number => {
+  const currentDateAndTime = new Date();
+
+  const daysLate = differenceInDays(currentDateAndTime, dueDate);
+
+  let lateFee = 0;
+
+  if (isAfter(currentDateAndTime, dueDate)) lateFee = lateFee + initialFee;
+
+  // add the followingDateFee if late for more than 1 day
+  if (daysLate >= 1) {
+    for (let i = daysLate; i >= 1; i--) {
+      lateFee = lateFee + followingDateFee;
+    }
+  }
+
+  return lateFee;
 };

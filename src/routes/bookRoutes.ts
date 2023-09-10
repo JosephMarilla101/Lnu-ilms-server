@@ -12,6 +12,7 @@ import {
   getAllIssuedBooks,
   getBookLateFee,
   getUnreturnedBook,
+  returnBorrowedBook,
 } from '../controllers/bookController';
 
 const bookRouter = express.Router();
@@ -27,5 +28,6 @@ bookRouter.post('/', jwtVerifier, createBook);
 bookRouter.post('/request', jwtVerifier, requestBook);
 bookRouter.post('/cancel_request', jwtVerifier, cancelRequest);
 bookRouter.post('/borrow_book', jwtVerifier, createBorrowedBook);
+bookRouter.put('/borrowed/return', jwtVerifier, returnBorrowedBook);
 
 export default bookRouter;
