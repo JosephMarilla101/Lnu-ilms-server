@@ -8,7 +8,7 @@ export type UserType = {
 
 const tokenGenerator = (user: UserType) => {
   return jwt.sign(user, process.env.SECRET_KEY as string, {
-    expiresIn: '1d',
+    expiresIn: '20d',
   });
 };
 

@@ -83,6 +83,19 @@ export const getBook = async (req: AuthenticatedRequest, res: Response) => {
   }
 };
 
+export const getBookLateFee = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const lateFee = await bookServices.getBookLateFee();
+
+    return res.status(200).json(lateFee);
+  } catch (error) {
+    errHandler(error, res);
+  }
+};
+
 export const createBorrowedBook = async (
   req: AuthenticatedRequest,
   res: Response
@@ -153,6 +166,45 @@ export const getRequestedBook = async (
     );
 
     return res.status(200).json(requestedBook);
+  } catch (error) {
+    errHandler(error, res);
+  }
+};
+
+export const getUnreturnedBook = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const studentId = req.user?.id;
+
+    const Schema = z.object({
+      studentId: z.number({
+        required_error: 'Student ID is required.',
+        invalid_type_error: 'Student ID is not a valid ID.',
+      }),
+    });
+
+    const validated = Schema.parse({ studentId });
+
+    const borrowedBook = await bookServices.getUnreturnedBook(
+      validated.studentId
+    );
+
+    return res.status(200).json(borrowedBook);
+  } catch (error) {
+    errHandler(error, res);
+  }
+};
+
+export const getAllIssuedBooks = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const issuedBooks = await bookServices.getAllIssuedBooks();
+
+    return res.status(200).json(issuedBooks);
   } catch (error) {
     errHandler(error, res);
   }

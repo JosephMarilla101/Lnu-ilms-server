@@ -1,4 +1,9 @@
-import { PrismaClient, Book, BorrowRequest } from '@prisma/client';
+import {
+  PrismaClient,
+  Book,
+  BorrowRequest,
+  BorrowedBookFee,
+} from '@prisma/client';
 import customeError from '../utils/customError';
 
 const prisma = new PrismaClient();
@@ -68,6 +73,12 @@ export const getBook = async (id: number) => {
   return book;
 };
 
+export const getBookLateFee = async (): Promise<BorrowedBookFee> => {
+  const lateFee = await prisma.borrowedBookFee.findFirstOrThrow();
+
+  return lateFee;
+};
+
 export const createBorrowedBook = async ({
   dueDate,
   requestId,
@@ -88,7 +99,7 @@ export const createBorrowedBook = async ({
   });
 
   if (book?.copies <= 0)
-    throw new customeError(403, 'No copies of the selected books is available');
+    throw new customeError(403, 'No copies of the selected book is available.');
 
   await prisma.book.update({
     where: {
@@ -129,6 +140,7 @@ export const getAllIssuedBooks = async () => {
         select: {
           isbn: true,
           name: true,
+          bookCover: true,
         },
       },
       student: {
@@ -153,6 +165,7 @@ export const getAllIssuedBooks = async () => {
       returnedData: data.returnedDate,
       isReturn: data.isReturn,
       lateFee: data.lateFee,
+      bookCover: data.book.bookCover,
     };
   });
 
@@ -169,6 +182,8 @@ export const getALLRequestedBooks = async () => {
         select: {
           name: true,
           isbn: true,
+          bookCover: true,
+          copies: true,
         },
       },
       student: {
@@ -186,6 +201,8 @@ export const getALLRequestedBooks = async () => {
       id: data.id,
       bookId: data.bookId,
       bookName: data.book.name,
+      bookCover: data.book.bookCover,
+      copies: data.book.copies,
       isbn: data.book.isbn.toString(), //convert to string in order to be searchable in data table
       studentId: data.student.studentId.toString(), //convert to string in order to be searchable in data table
       borrowerId: data.studentId,
@@ -242,6 +259,24 @@ export const getRequestedBook = async (studentId: number) => {
   return requestedBook;
 };
 
+export const getUnreturnedBook = async (studentId: number) => {
+  const requestedBook = await prisma.borrowedBook.findFirst({
+    where: {
+      studentId,
+      AND: {
+        isReturn: false,
+      },
+    },
+    select: {
+      book: true,
+      isReturn: true,
+      dueDate: true,
+    },
+  });
+
+  return requestedBook;
+};
+
 export const requestBook = async ({
   bookId,
   studentId,
@@ -256,7 +291,7 @@ export const requestBook = async ({
   });
 
   if (book.copies <= 0)
-    throw new customeError(403, 'No copies of the selected books is available');
+    throw new customeError(403, 'No copies of the selected book is available.');
 
   const request = await prisma.borrowRequest.create({
     data: {
