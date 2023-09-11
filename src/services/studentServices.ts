@@ -1,8 +1,6 @@
 import { PrismaClient, Student } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import customeError from '../utils/customError';
-import { AuthenticatedRequest } from '../middlewares/jwtVerifier';
-import { Response } from 'express';
 import errHandler from '../middlewares/errorHandler';
 
 const prisma = new PrismaClient();
@@ -125,14 +123,10 @@ export const updateProfile = async ({
   return updatedProfile;
 };
 
-export const getAllRegisteredStudents = async (
-  req: AuthenticatedRequest,
-  res: Response
-) => {
-  try {
-  } catch (error) {
-    errHandler(error, res);
-  }
+export const getAllStudents = async () => {
+  const students = await prisma.student.findMany();
+
+  return students;
 };
 
 const isUniqueStudentId = async (studentId: number) => {

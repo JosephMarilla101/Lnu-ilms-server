@@ -6,13 +6,14 @@ import {
   getBookList,
   requestBook,
   cancelRequest,
+  createBorrowedBook,
   getRequestedBook,
   getALLRequestedBooks,
-  createBorrowedBook,
   getAllIssuedBooks,
   getBookLateFee,
   getUnreturnedBook,
   returnBorrowedBook,
+  deleteBorrowedBook,
 } from '../controllers/bookController';
 
 const bookRouter = express.Router();
@@ -26,8 +27,9 @@ bookRouter.get('/list', jwtVerifier, getBookList);
 bookRouter.get('/late_fee', jwtVerifier, getBookLateFee);
 bookRouter.post('/', jwtVerifier, createBook);
 bookRouter.post('/request', jwtVerifier, requestBook);
-bookRouter.post('/cancel_request', jwtVerifier, cancelRequest);
 bookRouter.post('/borrow_book', jwtVerifier, createBorrowedBook);
 bookRouter.put('/borrowed/return', jwtVerifier, returnBorrowedBook);
+bookRouter.delete('/cancel_request', jwtVerifier, cancelRequest);
+bookRouter.delete('/issued_book', jwtVerifier, deleteBorrowedBook);
 
 export default bookRouter;

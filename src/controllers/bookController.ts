@@ -132,6 +132,30 @@ export const createBorrowedBook = async (
   }
 };
 
+export const deleteBorrowedBook = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const { issuedId } = req.body;
+
+    const Schema = z.object({
+      issuedId: z.number({
+        required_error: 'Issued book ID is required.',
+        invalid_type_error: 'Issued book ID is not a valid ID.',
+      }),
+    });
+
+    const validated = Schema.parse({ issuedId });
+
+    const issuedBook = await bookServices.deleteIssuedBook(validated.issuedId);
+
+    return res.status(200).json(issuedBook);
+  } catch (error) {
+    errHandler(error, res);
+  }
+};
+
 export const getALLRequestedBooks = async (
   req: AuthenticatedRequest,
   res: Response

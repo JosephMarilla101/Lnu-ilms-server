@@ -80,6 +80,16 @@ export const getBookLateFee = async (): Promise<BorrowedBookFee> => {
   return lateFee;
 };
 
+export const deleteIssuedBook = async (issuedId: number) => {
+  const issuedBook = await prisma.borrowedBook.delete({
+    where: {
+      id: issuedId,
+    },
+  });
+
+  return issuedBook;
+};
+
 export const createBorrowedBook = async ({
   dueDate,
   requestId,
@@ -154,6 +164,9 @@ export const getAllIssuedBooks = async () => {
       isReturn: true,
       lateFee: true,
     },
+    orderBy: {
+      isReturn: 'asc',
+    },
   });
 
   const flattenResult = books.map((data) => {
@@ -195,6 +208,9 @@ export const getALLRequestedBooks = async () => {
       isApproved: true,
       requestDate: true,
     },
+    orderBy: {
+      isApproved: 'asc',
+    },
   });
 
   const flattenResult = requestBooks.map((data) => {
@@ -234,7 +250,7 @@ export const getBookList = async ({
       id: true,
     },
     orderBy: {
-      createdAt: 'desc',
+      createdAt: 'asc',
     },
   });
 

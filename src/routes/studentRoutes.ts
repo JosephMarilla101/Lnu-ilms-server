@@ -4,10 +4,12 @@ import {
   studentRegistration,
   updateProfile,
   changePassword,
+  getAllStudents,
 } from '../controllers/studentController';
 
 const studentRouter = express.Router();
 
+studentRouter.get('/all', getAllStudents);
 studentRouter.post('/register', studentRegistration);
 studentRouter.put('/', jwtVerifier, updateProfile);
 studentRouter.put('/change_password', jwtVerifier, changePassword);

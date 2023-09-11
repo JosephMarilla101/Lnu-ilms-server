@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import errHandler from './errorHandler';
 import customeError from '../utils/customError';
 import { UserType } from '../utils/tokenGenerator';

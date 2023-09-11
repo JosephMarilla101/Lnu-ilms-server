@@ -19,7 +19,11 @@ export const totalUnreturnedBooks = async (): Promise<number> => {
 };
 
 export const totalRequestedBooks = async (): Promise<number> => {
-  const total = await prisma.borrowRequest.count();
+  const total = await prisma.borrowRequest.count({
+    where: {
+      isApproved: false,
+    },
+  });
 
   return total;
 };

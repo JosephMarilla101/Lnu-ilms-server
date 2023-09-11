@@ -31,8 +31,10 @@ export const studentRegistration = async (req: Request, res: Response) => {
         email: z
           .string({ required_error: 'Email is required' })
           .email()
-          .transform((value) => value.toLocaleLowerCase()),
-        fullname: z.string({ required_error: 'Full Name is required.' }),
+          .transform((value) => value.toLocaleLowerCase().trim()),
+        fullname: z
+          .string({ required_error: 'Full Name is required.' })
+          .transform((value) => value.trim()),
         course: z.string({ required_error: 'Course is required.' }).min(1, {
           message: 'Course is required.',
         }),
@@ -132,19 +134,17 @@ export const updateProfile = async (
     const studentId = req.user?.id;
 
     const Schema = z.object({
-      studentId: z
-        .number({ required_error: 'Student ID is required.' })
-        .min(4, {
-          message: 'Student ID must be at least 4 characters.',
-        })
-        .max(8, { message: 'Student ID must not exceed 8 characters.' }),
+      studentId: z.number({ required_error: 'Student ID is required.' }),
       email: z
         .string({ required_error: 'Email is required' })
         .email()
         .transform((value) => value.toLocaleLowerCase().trim()),
-      fullname: z.string({ required_error: 'Full Name is required.' }).min(1, {
-        message: 'Course is required.',
-      }),
+      fullname: z
+        .string({ required_error: 'Full Name is required.' })
+        .min(1, {
+          message: 'Course is required.',
+        })
+        .transform((value) => value.trim()),
       course: z.string({ required_error: 'Course is required.' }).min(1, {
         message: 'Course is required.',
       }),
@@ -166,6 +166,19 @@ export const updateProfile = async (
     const profile = await studentServices.updateProfile(validated);
 
     return res.status(200).json(profile);
+  } catch (error) {
+    errHandler(error, res);
+  }
+};
+
+export const getAllStudents = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const students = await studentServices.getAllStudents();
+
+    return res.status(200).json(students);
   } catch (error) {
     errHandler(error, res);
   }

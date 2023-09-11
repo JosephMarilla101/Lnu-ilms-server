@@ -48,6 +48,7 @@ model Student {
   college        String
   mobile         String
   password       String
+  status         Boolean         @default(true)
   borrowedBooks  BorrowedBook[]
   borrowRequests BorrowRequest[]
   createdAt      DateTime        @default(now())
