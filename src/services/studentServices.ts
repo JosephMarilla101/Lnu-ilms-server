@@ -1,6 +1,9 @@
 import { PrismaClient, Student } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import customeError from '../utils/customError';
+import { AuthenticatedRequest } from '../middlewares/jwtVerifier';
+import { Response } from 'express';
+import errHandler from '../middlewares/errorHandler';
 
 const prisma = new PrismaClient();
 
@@ -39,6 +42,97 @@ export const studentRegistration = async ({
   });
 
   return student;
+};
+
+export const changePassword = async ({
+  current_password,
+  new_password,
+  password_confirmation,
+  userId,
+}: {
+  current_password: string;
+  new_password: string;
+  password_confirmation: string;
+  userId: number;
+}) => {
+  const user = await prisma.student.findUniqueOrThrow({
+    where: {
+      id: userId,
+    },
+  });
+
+  const isCurrentPasswordValid = bcrypt.compareSync(
+    current_password,
+    user.password
+  );
+
+  if (!isCurrentPasswordValid) {
+    throw new customeError(401, 'Current password is incorrect');
+  }
+
+  const hashNewPassword = bcrypt.hashSync(new_password, 10);
+
+  const updatedProfile = await prisma.student.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      password: hashNewPassword,
+    },
+  });
+
+  return updatedProfile;
+};
+
+export const updateProfile = async ({
+  fullname,
+  email,
+  mobile,
+  course,
+  college,
+  studentId,
+}: {
+  fullname: string;
+  email: string;
+  mobile: string;
+  course: string;
+  college: string;
+  studentId: number;
+}) => {
+  const currentProfile = await prisma.student.findUniqueOrThrow({
+    where: {
+      id: studentId,
+    },
+  });
+
+  if (currentProfile.email !== email) {
+    await isUniqueEmail(email);
+  }
+
+  const updatedProfile = await prisma.student.update({
+    where: {
+      id: studentId,
+    },
+    data: {
+      fullname,
+      email,
+      mobile,
+      course,
+      college,
+    },
+  });
+
+  return updatedProfile;
+};
+
+export const getAllRegisteredStudents = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+  } catch (error) {
+    errHandler(error, res);
+  }
 };
 
 const isUniqueStudentId = async (studentId: number) => {
