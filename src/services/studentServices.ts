@@ -1,7 +1,6 @@
 import { PrismaClient, Student } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import customeError from '../utils/customError';
-import errHandler from '../middlewares/errorHandler';
 
 const prisma = new PrismaClient();
 
@@ -45,12 +44,10 @@ export const studentRegistration = async ({
 export const changePassword = async ({
   current_password,
   new_password,
-  password_confirmation,
   userId,
 }: {
   current_password: string;
   new_password: string;
-  password_confirmation: string;
   userId: number;
 }) => {
   const user = await prisma.student.findUniqueOrThrow({
@@ -126,7 +123,24 @@ export const updateProfile = async ({
 export const getAllStudents = async () => {
   const students = await prisma.student.findMany();
 
-  return students;
+  const flattenResult = students.map((data) => {
+    return {
+      id: data.id,
+      studentId: data.studentId.toString(), //convert to string in order to be searchable in data table
+      email: data.email,
+      fullname: data.fullname,
+      profilePhoto: data.profilePhoto,
+      profilePhotoId: data.profilePhoto,
+      course: data.course,
+      college: data.college,
+      mobile: data.mobile,
+      status: data.status,
+      createdAt: data.createdAt,
+      updatedAt: data.updatedAt,
+    };
+  });
+
+  return flattenResult;
 };
 
 export const suspendStudent = async (id: number) => {

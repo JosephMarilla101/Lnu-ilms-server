@@ -4,6 +4,7 @@ import cors from 'cors';
 import corsOption from './src/config/cors';
 import authRoutes from './src/routes/authRoutes';
 import studentRoutes from './src/routes/studentRoutes';
+import librarianRoutes from './src/routes/librarianRoutes';
 import authorRoutes from './src/routes/authorRoutes';
 import categoryRoutes from './src/routes/categoryRoutes';
 import bookRoutes from './src/routes/bookRoutes';
@@ -55,6 +56,7 @@ app.all('/api', (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/student', studentRoutes);
+app.use('/api/librarian', librarianRoutes);
 app.use('/api/author', authorRoutes);
 app.use('/api/category', categoryRoutes);
 app.use('/api/book', bookRoutes);

@@ -5,6 +5,7 @@ import * as studentServices from '../services/studentServices';
 import customeError from '../utils/customError';
 import tokenGenerator from '../utils/tokenGenerator';
 import { AuthenticatedRequest } from '../middlewares/jwtVerifier';
+import customError from '../utils/customError';
 
 export const studentRegistration = async (req: Request, res: Response) => {
   try {
@@ -56,6 +57,13 @@ export const studentRegistration = async (req: Request, res: Response) => {
         message: 'Passwords do not match.',
         path: ['password_confirmation'],
       });
+
+    // Regular expression to check if the studentId contains only digits
+    const isEmployeeIdValid = /^[0-9]+$/.test(studentId);
+
+    if (!isEmployeeIdValid) {
+      throw new customError(403, 'Student ID should only contain digits.');
+    }
 
     const validated = Schema.parse({
       studentId,

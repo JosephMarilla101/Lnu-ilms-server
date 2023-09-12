@@ -29,6 +29,29 @@ export const adminLogin = async (req: Request, res: Response) => {
   }
 };
 
+export const librarianLogin = async (req: Request, res: Response) => {
+  try {
+    const { username, password } = req.body;
+
+    const Schema = z.object({
+      username: z
+        .string({ required_error: 'Username is required.' })
+        .min(1, 'Username is required'),
+      password: z.string({ required_error: 'Password is required.' }),
+    });
+
+    const validated = Schema.parse({ username, password });
+
+    const user = await authServices.librarianLogin(validated);
+
+    const token = tokenGenerator(user);
+
+    return res.status(200).json({ user, token });
+  } catch (error) {
+    errHandler(error, res);
+  }
+};
+
 export const studentLogin = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;

@@ -67,15 +67,15 @@ export const adminLogin = async ({
 };
 
 export const librarianLogin = async ({
-  email,
+  username,
   password,
 }: {
-  email: string;
+  username: string;
   password: string;
 }): Promise<Librarian> => {
   const librarian = await prisma.librarian.findUnique({
     where: {
-      email,
+      username,
     },
   });
 
