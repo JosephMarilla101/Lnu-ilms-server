@@ -129,6 +129,32 @@ export const getAllStudents = async () => {
   return students;
 };
 
+export const suspendStudent = async (id: number) => {
+  const student = await prisma.student.update({
+    where: {
+      id,
+    },
+    data: {
+      status: false,
+    },
+  });
+
+  return student;
+};
+
+export const unsuspendStudent = async (id: number) => {
+  const student = await prisma.student.update({
+    where: {
+      id,
+    },
+    data: {
+      status: true,
+    },
+  });
+
+  return student;
+};
+
 const isUniqueStudentId = async (studentId: number) => {
   const student = await prisma.student.findUnique({
     where: {

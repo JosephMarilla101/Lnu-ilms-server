@@ -8,14 +8,18 @@ import {
   getALLCategories,
   getActiveCategories,
 } from '../controllers/categoryController';
+import statusVerifier from '../middlewares/statusVerifier';
 
 const categoryRouter = express.Router();
 
-categoryRouter.get('/', jwtVerifier, getCategory);
-categoryRouter.post('/', jwtVerifier, createCategory);
-categoryRouter.put('/', jwtVerifier, updateCategory);
-categoryRouter.put('/soft-delete', jwtVerifier, deleteCategory);
-categoryRouter.get('/all', jwtVerifier, getALLCategories);
-categoryRouter.get('/active', jwtVerifier, getActiveCategories);
+categoryRouter.use(jwtVerifier);
+categoryRouter.use(statusVerifier);
+
+categoryRouter.get('/', getCategory);
+categoryRouter.post('/', createCategory);
+categoryRouter.put('/', updateCategory);
+categoryRouter.put('/soft-delete', deleteCategory);
+categoryRouter.get('/all', getALLCategories);
+categoryRouter.get('/active', getActiveCategories);
 
 export default categoryRouter;

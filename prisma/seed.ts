@@ -32,11 +32,13 @@ async function adminSeeder() {
       email: adminEmail,
       username: adminUsername,
       password: hashPassword,
+      status: true,
     },
     create: {
       email: adminEmail,
       username: adminUsername,
       password: hashPassword,
+      status: true,
     },
   });
 

@@ -4,6 +4,7 @@ export type UserType = {
   id: number;
   email: string;
   role: 'ADMIN' | 'LIBRARIAN' | 'STUDENT';
+  status: boolean;
 };
 
 const tokenGenerator = (user: UserType) => {

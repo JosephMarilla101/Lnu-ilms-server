@@ -4,6 +4,43 @@ import customeError from '../utils/customError';
 
 const prisma = new PrismaClient();
 
+export const isActive = async ({
+  id,
+  role,
+}: {
+  id: number;
+  role: 'ADMIN' | 'LIBRARIAN' | 'STUDENT';
+}): Promise<boolean> => {
+  let status = false;
+  if (role === 'LIBRARIAN') {
+    const librarian = await prisma.librarian.findUniqueOrThrow({
+      where: {
+        id,
+      },
+    });
+
+    status = librarian.status;
+  } else if (role === 'STUDENT') {
+    const student = await prisma.student.findUniqueOrThrow({
+      where: {
+        id,
+      },
+    });
+
+    status = student.status;
+  } else {
+    const admin = await prisma.admin.findUniqueOrThrow({
+      where: {
+        id,
+      },
+    });
+
+    status = admin.status;
+  }
+
+  return status;
+};
+
 export const adminLogin = async ({
   username,
   password,
@@ -23,6 +60,8 @@ export const adminLogin = async ({
 
   if (!passwordMatch)
     throw new customeError(401, 'Invalid username or password.');
+
+  if (!admin.status) throw new customeError(401, 'Your account is suspended.');
 
   return admin;
 };
@@ -46,6 +85,9 @@ export const librarianLogin = async ({
 
   if (!passwordMatch) throw new customeError(401, 'Invalid email or password.');
 
+  if (!librarian.status)
+    throw new customeError(401, 'Your account is suspended.');
+
   return librarian;
 };
 
@@ -67,6 +109,9 @@ export const studentLogin = async ({
   const passwordMatch = bcrypt.compareSync(password, student.password);
 
   if (!passwordMatch) throw new customeError(401, 'Invalid email or password.');
+
+  if (!student.status)
+    throw new customeError(401, 'Your account is suspended.');
 
   return student;
 };

@@ -183,3 +183,49 @@ export const getAllStudents = async (
     errHandler(error, res);
   }
 };
+
+export const suspendStudent = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const { id } = req.body;
+
+    const Schema = z.object({
+      id: z.number({ required_error: 'ID is required.' }),
+    });
+
+    const validated = Schema.parse({
+      id,
+    });
+
+    const student = await studentServices.suspendStudent(validated.id);
+
+    return res.status(200).json(student);
+  } catch (error) {
+    errHandler(error, res);
+  }
+};
+
+export const unsuspendStudent = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const { id } = req.body;
+
+    const Schema = z.object({
+      id: z.number({ required_error: 'ID is required.' }),
+    });
+
+    const validated = Schema.parse({
+      id,
+    });
+
+    const student = await studentServices.unsuspendStudent(validated.id);
+
+    return res.status(200).json(student);
+  } catch (error) {
+    errHandler(error, res);
+  }
+};

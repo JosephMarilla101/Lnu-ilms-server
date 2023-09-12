@@ -1,5 +1,6 @@
 import express from 'express';
 import jwtVerifier from '../middlewares/jwtVerifier';
+import statusVerifier from '../middlewares/statusVerifier';
 import {
   createBook,
   getBook,
@@ -18,18 +19,21 @@ import {
 
 const bookRouter = express.Router();
 
-bookRouter.get('/', jwtVerifier, getBook);
-bookRouter.get('/requested/all', jwtVerifier, getALLRequestedBooks);
-bookRouter.get('/requested', jwtVerifier, getRequestedBook);
-bookRouter.get('/unreturned', jwtVerifier, getUnreturnedBook);
-bookRouter.get('/issued/all', jwtVerifier, getAllIssuedBooks);
-bookRouter.get('/list', jwtVerifier, getBookList);
-bookRouter.get('/late_fee', jwtVerifier, getBookLateFee);
-bookRouter.post('/', jwtVerifier, createBook);
-bookRouter.post('/request', jwtVerifier, requestBook);
-bookRouter.post('/borrow_book', jwtVerifier, createBorrowedBook);
-bookRouter.put('/borrowed/return', jwtVerifier, returnBorrowedBook);
-bookRouter.delete('/cancel_request', jwtVerifier, cancelRequest);
-bookRouter.delete('/issued_book', jwtVerifier, deleteBorrowedBook);
+bookRouter.use(jwtVerifier);
+bookRouter.use(statusVerifier);
+
+bookRouter.get('/', getBook);
+bookRouter.get('/requested/all', getALLRequestedBooks);
+bookRouter.get('/requested', getRequestedBook);
+bookRouter.get('/unreturned', getUnreturnedBook);
+bookRouter.get('/issued/all', getAllIssuedBooks);
+bookRouter.get('/list', getBookList);
+bookRouter.get('/late_fee', getBookLateFee);
+bookRouter.post('/', createBook);
+bookRouter.post('/request', requestBook);
+bookRouter.post('/borrow_book', createBorrowedBook);
+bookRouter.put('/borrowed/return', returnBorrowedBook);
+bookRouter.delete('/cancel_request', cancelRequest);
+bookRouter.delete('/issued_book', deleteBorrowedBook);
 
 export default bookRouter;
