@@ -15,6 +15,8 @@ import {
   getUnreturnedBook,
   returnBorrowedBook,
   deleteBorrowedBook,
+  updateBook,
+  deleteBook,
 } from '../controllers/bookController';
 
 const bookRouter = express.Router();
@@ -30,9 +32,11 @@ bookRouter.get('/issued/all', getAllIssuedBooks);
 bookRouter.get('/list', getBookList);
 bookRouter.get('/late_fee', getBookLateFee);
 bookRouter.post('/', createBook);
+bookRouter.put('/', updateBook);
 bookRouter.post('/request', requestBook);
 bookRouter.post('/borrow_book', createBorrowedBook);
 bookRouter.put('/borrowed/return', returnBorrowedBook);
+bookRouter.delete('/', deleteBook);
 bookRouter.delete('/cancel_request', cancelRequest);
 bookRouter.delete('/issued_book', deleteBorrowedBook);
 

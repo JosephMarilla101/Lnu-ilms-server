@@ -106,7 +106,7 @@ model BorrowRequest {
   id          Int      @id @default(autoincrement())
   student     Student  @relation(fields: [studentId], references: [id])
   studentId   Int
-  book        Book     @relation(fields: [bookId], references: [id])
+  book        Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
   bookId      Int
   requestDate DateTime @default(now())
   isApproved  Boolean  @default(false)

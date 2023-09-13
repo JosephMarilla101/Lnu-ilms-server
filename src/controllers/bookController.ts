@@ -58,6 +58,73 @@ export const createBook = async (req: AuthenticatedRequest, res: Response) => {
   }
 };
 
+export const updateBook = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id, name, bookCover, bookCoverId, authorId, categoryIds, copies } =
+      req.body;
+
+    const Schema = z.object({
+      id: z.number({ required_error: 'Book ID is required' }),
+      name: z
+        .string({ required_error: 'Book name is required.' })
+        .min(1, 'Book name is required.'),
+      bookCover: z
+        .string({ invalid_type_error: 'Book Cover must be a string.' })
+        .optional(),
+      bookCoverId: z
+        .string({ invalid_type_error: 'Book Cover ID must be a string.' })
+        .optional(),
+      authorId: z.number({
+        required_error: 'Book Author is required.',
+      }),
+      categoryIds: z
+        .array(
+          z.number({
+            required_error: 'Book Category is required.',
+          })
+        )
+        .refine((ids) => ids.length >= 1, {
+          message: 'Please select at least 1 book category',
+        }),
+      copies: z.number(),
+    });
+
+    const validated = Schema.parse({
+      name,
+      bookCover,
+      bookCoverId,
+      authorId,
+      categoryIds,
+      copies,
+      id,
+    });
+
+    const updatedBook = await bookServices.updateBook(validated);
+
+    return res.status(200).json(updatedBook);
+  } catch (error) {
+    errHandler(error, res);
+  }
+};
+
+export const deleteBook = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id } = req.body;
+
+    const Schema = z.object({
+      id: z.number({ required_error: 'Book ID is required' }),
+    });
+
+    const validated = Schema.parse({ id });
+
+    const deletedBook = await bookServices.deleteBook(validated.id);
+
+    return res.status(200).json(deletedBook);
+  } catch (error) {
+    errHandler(error, res);
+  }
+};
+
 export const getBook = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const id = req.query.id;

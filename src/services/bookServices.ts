@@ -1,10 +1,5 @@
-import {
-  PrismaClient,
-  Book,
-  BorrowRequest,
-  BorrowedBookFee,
-} from '@prisma/client';
-import { format, parseISO, differenceInDays, isAfter } from 'date-fns';
+import { PrismaClient, BorrowedBookFee } from '@prisma/client';
+import { differenceInDays, isAfter } from 'date-fns';
 import customeError from '../utils/customError';
 
 const prisma = new PrismaClient();
@@ -43,6 +38,65 @@ export const createBook = async ({
   });
 
   return newBook;
+};
+
+export const updateBook = async ({
+  id,
+  name,
+  bookCover,
+  bookCoverId,
+  authorId,
+  categoryIds,
+  copies,
+}: {
+  id: number;
+  name: string;
+  bookCover?: string;
+  bookCoverId?: string;
+  authorId: number;
+  categoryIds: number[];
+  copies: number;
+}) => {
+  await prisma.book.findUniqueOrThrow({
+    where: {
+      id,
+    },
+  });
+  const updatedBook = await prisma.book.update({
+    where: {
+      id,
+    },
+    data: {
+      name,
+      bookCover,
+      bookCoverId,
+      authorId,
+      copies,
+      category: {
+        connect: categoryIds.map((categoryId) => ({
+          id: categoryId,
+        })),
+      },
+    },
+  });
+
+  return updatedBook;
+};
+
+export const deleteBook = async (id: number) => {
+  await prisma.book.findUniqueOrThrow({
+    where: {
+      id,
+    },
+  });
+
+  const deletedBook = await prisma.book.delete({
+    where: {
+      id,
+    },
+  });
+
+  return deletedBook;
 };
 
 export const getBook = async (id: number) => {
