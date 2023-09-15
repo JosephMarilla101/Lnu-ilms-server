@@ -39,6 +39,108 @@ export const librarianRegistration = async ({
   return librarian;
 };
 
+export const changePassword = async ({
+  current_password,
+  new_password,
+  userId,
+}: {
+  current_password: string;
+  new_password: string;
+  userId: number;
+}) => {
+  const user = await prisma.librarian.findUniqueOrThrow({
+    where: {
+      id: userId,
+    },
+  });
+
+  const isCurrentPasswordValid = bcrypt.compareSync(
+    current_password,
+    user.password
+  );
+
+  if (!isCurrentPasswordValid) {
+    throw new customeError(401, 'Current password is incorrect');
+  }
+
+  const hashNewPassword = bcrypt.hashSync(new_password, 10);
+
+  const updatedProfile = await prisma.librarian.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      password: hashNewPassword,
+    },
+  });
+
+  return updatedProfile;
+};
+
+export const updateProfile = async ({
+  username,
+  fullname,
+  email,
+  mobile,
+  librarianId,
+}: {
+  username: string;
+  fullname: string;
+  email: string;
+  mobile: string;
+  librarianId: number;
+}) => {
+  const currentProfile = await prisma.librarian.findUniqueOrThrow({
+    where: {
+      id: librarianId,
+    },
+  });
+
+  if (currentProfile.email !== email) {
+    await isUniqueEmail(email);
+  }
+
+  if (currentProfile.username !== username) {
+    await isUniqueUsername(username);
+  }
+
+  const updatedProfile = await prisma.librarian.update({
+    where: {
+      id: librarianId,
+    },
+    data: {
+      username,
+      fullname,
+      email,
+      mobile,
+    },
+  });
+
+  return updatedProfile;
+};
+
+export const updateProfilePhoto = async ({
+  id,
+  profilePhoto,
+  profilePhotoId,
+}: {
+  id: number;
+  profilePhoto: string;
+  profilePhotoId: string;
+}) => {
+  const librarian = await prisma.librarian.update({
+    where: {
+      id,
+    },
+    data: {
+      profilePhoto,
+      profilePhotoId,
+    },
+  });
+
+  return librarian;
+};
+
 export const getAllLibrarians = async () => {
   const librarian = await prisma.librarian.findMany();
 
