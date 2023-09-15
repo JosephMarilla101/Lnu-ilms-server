@@ -179,6 +179,38 @@ export const updateProfile = async (
   }
 };
 
+export const updateProfilePhoto = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const { profilePhoto, profilePhotoId } = req.body;
+    const id = req.user?.id;
+
+    const Schema = z.object({
+      id: z.number({ required_error: 'Student ID is required.' }),
+      profilePhoto: z.string({
+        required_error: 'profilePhoto is required.',
+      }),
+      profilePhotoId: z.string({
+        required_error: 'profilePhotoId is required.',
+      }),
+    });
+
+    const validated = Schema.parse({
+      id,
+      profilePhoto,
+      profilePhotoId,
+    });
+
+    const profile = await studentServices.updateProfilePhoto(validated);
+
+    return res.status(200).json(profile);
+  } catch (error) {
+    errHandler(error, res);
+  }
+};
+
 export const getAllStudents = async (
   req: AuthenticatedRequest,
   res: Response

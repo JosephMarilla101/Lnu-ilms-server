@@ -120,6 +120,28 @@ export const updateProfile = async ({
   return updatedProfile;
 };
 
+export const updateProfilePhoto = async ({
+  id,
+  profilePhoto,
+  profilePhotoId,
+}: {
+  id: number;
+  profilePhoto: string;
+  profilePhotoId: string;
+}) => {
+  const student = await prisma.student.update({
+    where: {
+      id,
+    },
+    data: {
+      profilePhoto,
+      profilePhotoId,
+    },
+  });
+
+  return student;
+};
+
 export const getAllStudents = async () => {
   const students = await prisma.student.findMany();
 

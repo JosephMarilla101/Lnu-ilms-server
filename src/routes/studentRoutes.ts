@@ -7,6 +7,7 @@ import {
   getAllStudents,
   suspendStudent,
   unsuspendStudent,
+  updateProfilePhoto,
 } from '../controllers/studentController';
 import statusVerifier from '../middlewares/statusVerifier';
 
@@ -21,6 +22,7 @@ studentRouter.get('/all', getAllStudents);
 studentRouter.post('/suspend', suspendStudent);
 studentRouter.post('/unsuspend', unsuspendStudent);
 studentRouter.put('/', updateProfile);
+studentRouter.put('/profile_photo', updateProfilePhoto);
 studentRouter.put('/change_password', changePassword);
 
 export default studentRouter;
