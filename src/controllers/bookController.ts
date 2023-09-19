@@ -396,12 +396,14 @@ export const cancelRequest = async (
 export const getBookList = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const myCursor = req.query.cursor;
+    const filter = req.query.filter;
 
     const Schema = z.object({
       myCursor: z.string().transform((value) => parseInt(value)),
+      filter: z.string(),
     });
 
-    const validated = Schema.parse({ myCursor });
+    const validated = Schema.parse({ myCursor, filter });
 
     const bookList = await bookServices.getBookList(validated);
 

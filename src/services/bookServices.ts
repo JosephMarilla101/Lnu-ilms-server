@@ -287,12 +287,17 @@ export const getALLRequestedBooks = async () => {
 
 export const getBookList = async ({
   myCursor,
-  sortBy,
+  filter,
 }: {
   myCursor?: number;
-  sortBy?: string;
+  filter: string;
 }) => {
   const booksId = await prisma.book.findMany({
+    where: {
+      name: {
+        contains: filter,
+      },
+    },
     skip: myCursor ? 1 : 0,
     take: 10,
     ...(myCursor && {
