@@ -86,7 +86,7 @@ model Category {
 
 model Book {
   id             Int             @id @default(autoincrement())
-  isbn           Int             @unique
+  isbn           String          @unique
   name           String
   bookCover      String?
   bookCoverId    String?

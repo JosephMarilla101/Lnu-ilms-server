@@ -9,21 +9,24 @@ import customError from '../utils/customError';
 
 export const createBook = async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { name, bookCover, bookCoverId, authorId, categoryIds, copies } =
-      req.body;
-
-    const isbn = await generateUniqueISBN();
+    const {
+      isbn,
+      name,
+      bookCover,
+      bookCoverId,
+      authorId,
+      categoryIds,
+      copies,
+    } = req.body;
 
     const Schema = z.object({
+      isbn: z
+        .string({ invalid_type_error: 'ISBN must be a unique.' })
+        .min(1, 'ISBN is required.'),
       name: z
-        .string({ required_error: 'Book name is required.' })
-        .min(1, 'Book name is required.'),
-      bookCover: z
-        .string({ invalid_type_error: 'Book Cover must be a string.' })
-        .optional(),
-      bookCoverId: z
-        .string({ invalid_type_error: 'Book Cover ID must be a string.' })
-        .optional(),
+        .string({ required_error: 'Book title is required.' })
+        .min(1, 'Book title is required.'),
+
       authorId: z.number({
         required_error: 'Book Author is required.',
       }),
@@ -37,7 +40,14 @@ export const createBook = async (req: AuthenticatedRequest, res: Response) => {
           message: 'Please select at least 1 book category',
         }),
       copies: z.number(),
-      isbn: z.number({ invalid_type_error: 'ISBN must be a unique number.' }),
+      bookCover: z
+        .string({ invalid_type_error: 'Book Cover must be a string.' })
+        .optional()
+        .nullable(),
+      bookCoverId: z
+        .string({ invalid_type_error: 'Book Cover ID must be a string.' })
+        .optional()
+        .nullable(),
     });
 
     const validated = Schema.parse({
@@ -60,20 +70,33 @@ export const createBook = async (req: AuthenticatedRequest, res: Response) => {
 
 export const updateBook = async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { id, name, bookCover, bookCoverId, authorId, categoryIds, copies } =
-      req.body;
+    const {
+      id,
+      isbn,
+      name,
+      bookCover,
+      bookCoverId,
+      authorId,
+      categoryIds,
+      copies,
+    } = req.body;
 
     const Schema = z.object({
       id: z.number({ required_error: 'Book ID is required' }),
+      isbn: z
+        .string({ invalid_type_error: 'ISBN must be a unique.' })
+        .min(1, 'ISBN is required.'),
       name: z
         .string({ required_error: 'Book name is required.' })
         .min(1, 'Book name is required.'),
       bookCover: z
         .string({ invalid_type_error: 'Book Cover must be a string.' })
-        .optional(),
+        .optional()
+        .nullable(),
       bookCoverId: z
         .string({ invalid_type_error: 'Book Cover ID must be a string.' })
-        .optional(),
+        .optional()
+        .nullable(),
       authorId: z.number({
         required_error: 'Book Author is required.',
       }),
@@ -90,6 +113,7 @@ export const updateBook = async (req: AuthenticatedRequest, res: Response) => {
     });
 
     const validated = Schema.parse({
+      isbn,
       name,
       bookCover,
       bookCoverId,
@@ -413,17 +437,17 @@ export const getBookList = async (req: AuthenticatedRequest, res: Response) => {
   }
 };
 
-const generateUniqueISBN = async (): Promise<number> => {
-  while (true) {
-    const isbn = generateRandom9DigitNumber();
+// const generateUniqueISBN = async (): Promise<number> => {
+//   while (true) {
+//     const isbn = generateRandom9DigitNumber();
 
-    const isUnique = await bookServices.checkUniqueIsbn(isbn);
+//     const isUnique = await bookServices.checkUniqueIsbn(isbn);
 
-    if (isUnique) {
-      return isbn;
-    }
-  }
-};
+//     if (isUnique) {
+//       return isbn;
+//     }
+//   }
+// };
 
 function generateRandom9DigitNumber() {
   let randomNumber = '';

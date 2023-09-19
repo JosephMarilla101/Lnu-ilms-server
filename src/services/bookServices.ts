@@ -13,14 +13,16 @@ export const createBook = async ({
   categoryIds,
   copies,
 }: {
-  isbn: number;
+  isbn: string;
   name: string;
-  bookCover?: string;
-  bookCoverId?: string;
+  bookCover?: string | null | undefined;
+  bookCoverId?: string | null | undefined;
   authorId: number;
   categoryIds: number[];
   copies: number;
 }) => {
+  await checkUniqueIsbn(isbn);
+
   const newBook = await prisma.book.create({
     data: {
       isbn,
@@ -42,6 +44,7 @@ export const createBook = async ({
 
 export const updateBook = async ({
   id,
+  isbn,
   name,
   bookCover,
   bookCoverId,
@@ -50,23 +53,30 @@ export const updateBook = async ({
   copies,
 }: {
   id: number;
+  isbn: string;
   name: string;
-  bookCover?: string;
-  bookCoverId?: string;
+  bookCover?: string | null | undefined;
+  bookCoverId?: string | null | undefined;
   authorId: number;
   categoryIds: number[];
   copies: number;
 }) => {
-  await prisma.book.findUniqueOrThrow({
+  const book = await prisma.book.findUniqueOrThrow({
     where: {
       id,
     },
   });
+
+  if (book.isbn !== isbn) {
+    await checkUniqueIsbn(isbn);
+  }
+
   const updatedBook = await prisma.book.update({
     where: {
       id,
     },
     data: {
+      isbn,
       name,
       bookCover,
       bookCoverId,
@@ -478,14 +488,14 @@ export const canRequest = async (studentId: number): Promise<boolean> => {
   else return true;
 };
 
-export const checkUniqueIsbn = async (isbn: number): Promise<boolean> => {
+export const checkUniqueIsbn = async (isbn: string) => {
   const book = await prisma.book.findUnique({
     where: {
       isbn,
     },
   });
 
-  return book ? false : true;
+  if (book) throw new customeError(403, 'ISBN must be unique.');
 };
 
 const calculateLateFee = (
