@@ -111,11 +111,11 @@ async function borrowedBookFeeSeeder() {
       id: 1,
     },
     update: {
-      initialFee: 80,
+      initialFee: 50,
       followingDateFee: 8,
     },
     create: {
-      initialFee: 80,
+      initialFee: 50,
       followingDateFee: 8,
     },
   });
