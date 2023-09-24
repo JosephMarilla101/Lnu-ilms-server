@@ -421,13 +421,15 @@ export const getBookList = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const myCursor = req.query.cursor;
     const filter = req.query.filter;
+    const category = req.query.category;
 
     const Schema = z.object({
       myCursor: z.string().transform((value) => parseInt(value)),
       filter: z.string(),
+      category: z.string(),
     });
 
-    const validated = Schema.parse({ myCursor, filter });
+    const validated = Schema.parse({ myCursor, filter, category });
 
     const bookList = await bookServices.getBookList(validated);
 
