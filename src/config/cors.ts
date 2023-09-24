@@ -3,6 +3,7 @@ const whitelist = [
   'http://localhost:8081',
   'https://zippy-starlight-26ce2f.netlify.app',
   'https://tourmaline-tarsier-9d8be3.netlify.app',
+  'https://lnu-ilms.onrender.com',
 ];
 
 const corsOption = {
