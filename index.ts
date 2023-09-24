@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import corsOption from './src/config/cors';
 import authRoutes from './src/routes/authRoutes';
+import adminRoutes from './src/routes/adminRoutes';
 import studentRoutes from './src/routes/studentRoutes';
 import librarianRoutes from './src/routes/librarianRoutes';
 import authorRoutes from './src/routes/authorRoutes';
@@ -55,6 +56,7 @@ app.all('/api', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/admin', adminRoutes);
 app.use('/api/student', studentRoutes);
 app.use('/api/librarian', librarianRoutes);
 app.use('/api/author', authorRoutes);

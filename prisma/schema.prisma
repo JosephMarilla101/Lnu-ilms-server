@@ -17,14 +17,16 @@ enum UserRoles {
 }
 
 model Admin {
-  id        Int       @id @default(autoincrement())
-  role      UserRoles @default(ADMIN)
-  email     String    @unique
-  username  String    @unique
-  password  String
-  status    Boolean   @default(true)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id             Int       @id @default(autoincrement())
+  role           UserRoles @default(ADMIN)
+  email          String    @unique
+  username       String    @unique
+  password       String
+  profilePhoto   String?
+  profilePhotoId String?
+  status         Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 }
 
 model Librarian {
