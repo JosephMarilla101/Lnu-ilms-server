@@ -4,6 +4,7 @@ const whitelist = [
   'https://zippy-starlight-26ce2f.netlify.app',
   'https://tourmaline-tarsier-9d8be3.netlify.app',
   'https://lnu-ilms.onrender.com',
+  'https://lnu-ilms.netlify.app'
 ];
 
 const corsOption = {
