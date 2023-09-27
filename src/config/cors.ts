@@ -5,7 +5,8 @@ const whitelist = [
   'https://tourmaline-tarsier-9d8be3.netlify.app',
   'https://lnu-ilms.onrender.com',
   'https://lnu-ilms.netlify.app',
-  'http://lnu-ilms.online'
+  'http://lnu-ilms.online',
+  'https://lnu-ilms.online'
 ];
 
 const corsOption = {
