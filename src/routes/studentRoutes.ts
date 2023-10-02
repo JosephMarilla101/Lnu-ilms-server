@@ -8,6 +8,7 @@ import {
   suspendStudent,
   unsuspendStudent,
   updateProfilePhoto,
+  getStudentBorrowedBooks,
 } from '../controllers/studentController';
 import statusVerifier from '../middlewares/statusVerifier';
 
@@ -19,6 +20,7 @@ studentRouter.use(jwtVerifier);
 studentRouter.use(statusVerifier);
 
 studentRouter.get('/all', getAllStudents);
+studentRouter.get('/borrowed_books/:id', getStudentBorrowedBooks);
 studentRouter.post('/suspend', suspendStudent);
 studentRouter.post('/unsuspend', unsuspendStudent);
 studentRouter.put('/', updateProfile);

@@ -224,6 +224,32 @@ export const getAllStudents = async (
   }
 };
 
+export const getStudentBorrowedBooks = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const id = req.params.id;
+
+    const Schema = z.object({
+      id: z
+        .string({
+          required_error: 'Student ID is required',
+          invalid_type_error: 'Student ID is not a valid ID',
+        })
+        .transform((value) => parseInt(value)),
+    });
+
+    const validated = Schema.parse({ id });
+
+    const student = await studentServices.getStudentBorrowedBooks(validated.id);
+
+    return res.status(200).json(student);
+  } catch (error) {
+    errHandler(error, res);
+  }
+};
+
 export const suspendStudent = async (
   req: AuthenticatedRequest,
   res: Response

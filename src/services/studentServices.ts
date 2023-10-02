@@ -165,6 +165,23 @@ export const getAllStudents = async () => {
   return flattenResult;
 };
 
+export const getStudentBorrowedBooks = async (id: number) => {
+  const student = await prisma.student.findUniqueOrThrow({
+    where: {
+      id,
+    },
+    include: {
+      borrowedBooks: {
+        include: {
+          book: true,
+        },
+      },
+    },
+  });
+
+  return student;
+};
+
 export const suspendStudent = async (id: number) => {
   const student = await prisma.student.update({
     where: {
