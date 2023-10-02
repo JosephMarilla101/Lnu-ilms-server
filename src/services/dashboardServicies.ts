@@ -35,13 +35,21 @@ export const totalBorrowedBooks = async (): Promise<number> => {
 };
 
 export const totalAuthors = async (): Promise<number> => {
-  const total = await prisma.author.count();
+  const total = await prisma.author.count({
+    where: {
+      isDeleted: false,
+    },
+  });
 
   return total;
 };
 
 export const totalCatoegories = async (): Promise<number> => {
-  const total = await prisma.category.count();
+  const total = await prisma.category.count({
+    where: {
+      isDeleted: false,
+    },
+  });
 
   return total;
 };
