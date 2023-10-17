@@ -1,5 +1,6 @@
-import { PrismaClient, Admin, Librarian, Student } from '@prisma/client';
+import { PrismaClient, Admin, Librarian, User } from '@prisma/client';
 import bcrypt from 'bcrypt';
+import { UserRoles } from '@prisma/client';
 import customeError from '../utils/customError';
 
 const prisma = new PrismaClient();
@@ -9,7 +10,7 @@ export const isActive = async ({
   role,
 }: {
   id: number;
-  role: 'ADMIN' | 'LIBRARIAN' | 'STUDENT';
+  role: UserRoles;
 }): Promise<boolean> => {
   let status = false;
   if (role === 'LIBRARIAN') {
@@ -20,15 +21,7 @@ export const isActive = async ({
     });
 
     status = librarian.status;
-  } else if (role === 'STUDENT') {
-    const student = await prisma.student.findUniqueOrThrow({
-      where: {
-        id,
-      },
-    });
-
-    status = student.status;
-  } else {
+  } else if (role === 'ADMIN') {
     const admin = await prisma.admin.findUniqueOrThrow({
       where: {
         id,
@@ -36,6 +29,14 @@ export const isActive = async ({
     });
 
     status = admin.status;
+  } else {
+    const student = await prisma.user.findUniqueOrThrow({
+      where: {
+        id,
+      },
+    });
+
+    status = student.status;
   }
 
   return status;
@@ -91,29 +92,28 @@ export const librarianLogin = async ({
   return librarian;
 };
 
-export const studentLogin = async ({
+export const userLogin = async ({
   email,
   password,
 }: {
   email: string;
   password: string;
-}): Promise<Student> => {
-  const student = await prisma.student.findUnique({
+}): Promise<User> => {
+  const user = await prisma.user.findUnique({
     where: {
       email,
     },
   });
 
-  if (!student) throw new customeError(401, 'Invalid email or password.');
+  if (!user) throw new customeError(401, 'Invalid email or password.');
 
-  const passwordMatch = bcrypt.compareSync(password, student.password);
+  const passwordMatch = bcrypt.compareSync(password, user.password);
 
   if (!passwordMatch) throw new customeError(401, 'Invalid email or password.');
 
-  if (!student.status)
-    throw new customeError(401, 'Your account is suspended.');
+  if (!user.status) throw new customeError(401, 'Your account is suspended.');
 
-  return student;
+  return user;
 };
 
 export const findAdmin = async (id: number): Promise<Admin> => {
@@ -136,12 +136,12 @@ export const findLibrarian = async (id: number): Promise<Librarian> => {
   return librarian;
 };
 
-export const findStudent = async (id: number): Promise<Student> => {
-  const student = await prisma.student.findUniqueOrThrow({
+export const findUser = async (id: number): Promise<User> => {
+  const user = await prisma.user.findUniqueOrThrow({
     where: {
       id,
     },
   });
 
-  return student;
+  return user;
 };

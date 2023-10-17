@@ -52,7 +52,7 @@ export const librarianLogin = async (req: Request, res: Response) => {
   }
 };
 
-export const studentLogin = async (req: Request, res: Response) => {
+export const userLogin = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
@@ -65,7 +65,7 @@ export const studentLogin = async (req: Request, res: Response) => {
 
     const validated = Schema.parse({ email, password });
 
-    const user = await authServices.studentLogin(validated);
+    const user = await authServices.userLogin(validated);
 
     const token = tokenGenerator(user);
 
@@ -94,8 +94,8 @@ export const authenticateUser = async (
       return res.status(200).json(auth);
     }
 
-    if (user?.role === 'STUDENT') {
-      const auth = await authServices.findStudent(user.id);
+    if (user?.role === 'STUDENT' || user?.role === 'GRADUATE') {
+      const auth = await authServices.findUser(user.id);
 
       return res.status(200).json(auth);
     }

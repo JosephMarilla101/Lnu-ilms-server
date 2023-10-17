@@ -15,6 +15,7 @@ enum UserRoles {
   LIBRARIAN
   STUDENT
   TEACHER
+  GRADUATE
 }
 
 model Admin {
@@ -46,34 +47,30 @@ model Librarian {
   updatedAt      DateTime  @updatedAt
 }
 
-model Student {
+model User {
   id             Int             @id @default(autoincrement())
-  role           UserRoles       @default(STUDENT)
-  studentId      Int             @unique
   email          String          @unique
-  fullname       String
-  profilePhoto   String?
-  profilePhotoId String?
-  course         String
-  college        String
-  mobile         String
   password       String
-  status         Boolean         @default(true)
+  role           UserRoles
+  profile        Profile?
   borrowedBooks  BorrowedBook[]
   borrowRequests BorrowRequest[]
+  status         Boolean         @default(true)
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
 }
 
-model Teacher {
-  id         Int       @id @default(autoincrement())
-  role       UserRoles @default(TEACHER)
-  email      String    @unique
-  mobile     String
-  department String
-  fullname   String
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+model Profile {
+  id             Int     @unique
+  fullname       String
+  profilePhoto   String?
+  profilePhotoId String?
+  department     String?
+  course         String?
+  college        String?
+  mobile         String?
+  user           User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         Int     @unique
 }
 
 model Author {
@@ -118,22 +115,22 @@ model Book {
 
 model BorrowRequest {
   id          Int      @id @default(autoincrement())
-  student     Student  @relation(fields: [studentId], references: [id])
-  studentId   Int
+  user        User     @relation(fields: [userId], references: [id])
+  userId      Int
   book        Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
   bookId      Int
   requestDate DateTime @default(now())
   isApproved  Boolean  @default(false)
   updatedAt   DateTime @updatedAt
 
-  @@index([studentId])
+  @@index([userId])
   @@index([bookId])
 }
 
 model BorrowedBook {
   id           Int       @id @default(autoincrement())
-  student      Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  studentId    Int
+  user         User      @relation(fields: [userId], references: [id])
+  userId       Int
   book         Book      @relation(fields: [bookId], references: [id], onDelete: Cascade)
   bookId       Int
   dueDate      DateTime
@@ -143,7 +140,7 @@ model BorrowedBook {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
-  @@index([studentId])
+  @@index([userId])
   @@index([bookId])
 }
 

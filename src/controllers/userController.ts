@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import z from 'zod';
 import errHandler from '../middlewares/errorHandler';
-import * as studentServices from '../services/studentServices';
+import * as userServices from '../services/userServices';
 import customeError from '../utils/customError';
 import tokenGenerator from '../utils/tokenGenerator';
 import { AuthenticatedRequest } from '../middlewares/jwtVerifier';
@@ -79,7 +79,7 @@ export const studentRegistration = async (req: Request, res: Response) => {
     if (!validated.studentId)
       throw new customeError(403, 'Student ID is not a valid ID.');
 
-    const student = await studentServices.studentRegistration(validated);
+    const student = await userServices.studentRegistration(validated);
 
     const token = tokenGenerator(student);
 
@@ -125,7 +125,7 @@ export const changePassword = async (
       userId,
     });
 
-    const updatedProfile = await studentServices.changePassword(validated);
+    const updatedProfile = await userServices.changePassword(validated);
 
     return res.status(200).json(updatedProfile);
   } catch (error) {
@@ -171,7 +171,7 @@ export const updateProfile = async (
       mobile,
     });
 
-    const profile = await studentServices.updateProfile(validated);
+    const profile = await userServices.updateProfile(validated);
 
     return res.status(200).json(profile);
   } catch (error) {
@@ -203,7 +203,7 @@ export const updateProfilePhoto = async (
       profilePhotoId,
     });
 
-    const profile = await studentServices.updateProfilePhoto(validated);
+    const profile = await userServices.updateProfilePhoto(validated);
 
     return res.status(200).json(profile);
   } catch (error) {
@@ -216,7 +216,7 @@ export const getAllStudents = async (
   res: Response
 ) => {
   try {
-    const students = await studentServices.getAllStudents();
+    const students = await userServices.getAllStudents();
 
     return res.status(200).json(students);
   } catch (error) {
@@ -242,7 +242,7 @@ export const getStudentBorrowedBooks = async (
 
     const validated = Schema.parse({ id });
 
-    const student = await studentServices.getStudentBorrowedBooks(validated.id);
+    const student = await userServices.getStudentBorrowedBooks(validated.id);
 
     return res.status(200).json(student);
   } catch (error) {
@@ -265,7 +265,7 @@ export const suspendStudent = async (
       id,
     });
 
-    const student = await studentServices.suspendStudent(validated.id);
+    const student = await userServices.suspendStudent(validated.id);
 
     return res.status(200).json(student);
   } catch (error) {
@@ -288,7 +288,7 @@ export const unsuspendStudent = async (
       id,
     });
 
-    const student = await studentServices.unsuspendStudent(validated.id);
+    const student = await userServices.unsuspendStudent(validated.id);
 
     return res.status(200).json(student);
   } catch (error) {

@@ -4,7 +4,7 @@ import cors from 'cors';
 import corsOption from './src/config/cors';
 import authRoutes from './src/routes/authRoutes';
 import adminRoutes from './src/routes/adminRoutes';
-import studentRoutes from './src/routes/studentRoutes';
+import userRoutes from './src/routes/userRoutes';
 import librarianRoutes from './src/routes/librarianRoutes';
 import authorRoutes from './src/routes/authorRoutes';
 import categoryRoutes from './src/routes/categoryRoutes';
@@ -57,7 +57,7 @@ app.all('/api', (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/student', studentRoutes);
+app.use('/api/student', userRoutes);
 app.use('/api/librarian', librarianRoutes);
 app.use('/api/author', authorRoutes);
 app.use('/api/category', categoryRoutes);
