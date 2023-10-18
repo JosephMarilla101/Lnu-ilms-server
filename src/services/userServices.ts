@@ -48,19 +48,19 @@ export const studentRegistration = async ({
 };
 
 export const graduateRegistration = async ({
-  userId,
+  studentId,
   email,
   fullname,
   mobile,
   password,
 }: {
-  userId: number;
+  studentId: number;
   email: string;
   fullname: string;
   mobile: string;
   password: string;
 }): Promise<User> => {
-  await isUniqueId(userId);
+  await isUniqueId(studentId);
   await isUniqueEmail(email);
 
   const hashPassword = bcrypt.hashSync(password, 10);
@@ -72,7 +72,7 @@ export const graduateRegistration = async ({
       password: hashPassword,
       profile: {
         create: {
-          id: userId,
+          id: studentId,
           fullname,
           mobile,
         },
@@ -84,21 +84,21 @@ export const graduateRegistration = async ({
 };
 
 export const teacherRegistration = async ({
-  userId,
+  employeeId,
   email,
   fullname,
   department,
   mobile,
   password,
 }: {
-  userId: number;
+  employeeId: number;
   email: string;
   fullname: string;
   department: string;
   mobile: string;
   password: string;
 }): Promise<User> => {
-  await isUniqueId(userId);
+  await isUniqueId(employeeId);
   await isUniqueEmail(email);
 
   const hashPassword = bcrypt.hashSync(password, 10);
@@ -110,7 +110,7 @@ export const teacherRegistration = async ({
       password: hashPassword,
       profile: {
         create: {
-          id: userId,
+          id: employeeId,
           fullname,
           department,
           mobile,

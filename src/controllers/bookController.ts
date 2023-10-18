@@ -352,24 +352,24 @@ export const getAllIssuedBooks = async (
 export const requestBook = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { bookId } = req.body;
-    const studentId = req.user?.id;
+    const userId = req.user?.id;
 
     const Schema = z.object({
       bookId: z.number({
         required_error: 'Book ID is required.',
         invalid_type_error: 'Book ID is not a valid ID.',
       }),
-      studentId: z.number({
-        required_error: 'Student ID is required.',
-        invalid_type_error: 'Student ID is not a valid ID.',
+      userId: z.number({
+        required_error: 'User ID is required.',
+        invalid_type_error: 'User ID is not a valid ID.',
       }),
     });
 
-    const validated = Schema.parse({ bookId, studentId });
+    const validated = Schema.parse({ bookId, userId });
 
-    const canBorrow = await bookServices.canBorrow(validated.studentId);
+    const canBorrow = await bookServices.canBorrow(validated.userId);
 
-    const canRequest = await bookServices.canRequest(validated.studentId);
+    const canRequest = await bookServices.canRequest(validated.userId);
 
     if (!canBorrow)
       return res
@@ -394,20 +394,20 @@ export const cancelRequest = async (
   res: Response
 ) => {
   try {
-    const { bookId, studentId } = req.body;
+    const { bookId, userId } = req.body;
 
     const Schema = z.object({
       bookId: z.number({
         required_error: 'Book ID is required.',
         invalid_type_error: 'Book ID is not a valid ID.',
       }),
-      studentId: z.number({
-        required_error: 'Student ID is required.',
-        invalid_type_error: 'Student ID is not a valid ID.',
+      userId: z.number({
+        required_error: 'User ID is required.',
+        invalid_type_error: 'User ID is not a valid ID.',
       }),
     });
 
-    const validated = Schema.parse({ bookId, studentId });
+    const validated = Schema.parse({ bookId, userId });
 
     const request = await bookServices.cancelRequest(validated);
 

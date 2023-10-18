@@ -9,7 +9,7 @@ import {
   unsuspendStudent,
   updateProfilePhoto,
   getStudentBorrowedBooks,
-} from '../controllers/studentController';
+} from '../controllers/userController';
 import statusVerifier from '../middlewares/statusVerifier';
 
 const studentRouter = express.Router();

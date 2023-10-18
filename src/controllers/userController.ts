@@ -59,9 +59,9 @@ export const studentRegistration = async (req: Request, res: Response) => {
       });
 
     // Regular expression to check if the studentId contains only digits
-    const isEmployeeIdValid = /^[0-9]+$/.test(studentId);
+    const isStuentIdValid = /^[0-9]+$/.test(studentId);
 
-    if (!isEmployeeIdValid) {
+    if (!isStuentIdValid) {
       throw new customError(403, 'Student ID should only contain digits.');
     }
 
@@ -79,11 +79,162 @@ export const studentRegistration = async (req: Request, res: Response) => {
     if (!validated.studentId)
       throw new customeError(403, 'Student ID is not a valid ID.');
 
-    const student = await userServices.studentRegistration(validated);
+    const user = await userServices.studentRegistration(validated);
 
-    const token = tokenGenerator(student);
+    const token = tokenGenerator(user);
 
-    return res.status(200).json({ user: student, token });
+    return res.status(200).json({ user: user, token });
+  } catch (error) {
+    errHandler(error, res);
+  }
+};
+
+export const graduateRegistration = async (req: Request, res: Response) => {
+  try {
+    const {
+      studentId,
+      email,
+      fullname,
+      mobile,
+      password,
+      password_confirmation,
+    } = req.body;
+
+    const Schema = z
+      .object({
+        studentId: z
+          .string({ required_error: 'Student ID is required.' })
+          .min(4, {
+            message: 'Student ID must be at least 4 characters.',
+          })
+          .max(8, { message: 'Student ID must not exceed 8 characters.' })
+          .transform((value) => parseInt(value)),
+        email: z
+          .string({ required_error: 'Email is required' })
+          .email()
+          .transform((value) => value.toLocaleLowerCase().trim()),
+        fullname: z
+          .string({ required_error: 'Full Name is required.' })
+          .transform((value) => value.trim()),
+        mobile: z.string({ required_error: 'Mobile number is required.' }),
+        password: z
+          .string({ required_error: 'Password is required.' })
+          .min(6, 'Password must contain at least 6 character(s).')
+          .transform((value) => value.trim()),
+        password_confirmation: z
+          .string({
+            required_error: 'Password confimation is required.',
+          })
+          .transform((value) => value.trim()),
+      })
+      .refine((data) => data.password === data.password_confirmation, {
+        message: 'Passwords do not match.',
+        path: ['password_confirmation'],
+      });
+
+    // Regular expression to check if the studentId contains only digits
+    const isStuentIdValid = /^[0-9]+$/.test(studentId);
+
+    if (!isStuentIdValid) {
+      throw new customError(403, 'Student ID should only contain digits.');
+    }
+
+    const validated = Schema.parse({
+      studentId,
+      email,
+      fullname,
+      mobile,
+      password,
+      password_confirmation,
+    });
+
+    if (!validated.studentId)
+      throw new customeError(403, 'Student ID is not a valid ID.');
+
+    const user = await userServices.graduateRegistration(validated);
+
+    const token = tokenGenerator(user);
+
+    return res.status(200).json({ user: user, token });
+  } catch (error) {
+    errHandler(error, res);
+  }
+};
+
+export const teacherRegistration = async (req: Request, res: Response) => {
+  try {
+    const {
+      employeeId,
+      email,
+      fullname,
+      department,
+      mobile,
+      password,
+      password_confirmation,
+    } = req.body;
+
+    const Schema = z
+      .object({
+        employeeId: z
+          .string({ required_error: 'Employee ID is required.' })
+          .min(4, {
+            message: 'Employee ID must be at least 4 characters.',
+          })
+          .max(8, { message: 'Employee ID must not exceed 8 characters.' })
+          .transform((value) => parseInt(value)),
+        email: z
+          .string({ required_error: 'Email is required' })
+          .email()
+          .transform((value) => value.toLocaleLowerCase().trim()),
+        fullname: z
+          .string({ required_error: 'Full Name is required.' })
+          .transform((value) => value.trim()),
+        department: z
+          .string({ required_error: 'Department is required.' })
+          .min(1, {
+            message: 'Department is required.',
+          }),
+        mobile: z.string({ required_error: 'Mobile number is required.' }),
+        password: z
+          .string({ required_error: 'Password is required.' })
+          .min(6, 'Password must contain at least 6 character(s).')
+          .transform((value) => value.trim()),
+        password_confirmation: z
+          .string({
+            required_error: 'Password confimation is required.',
+          })
+          .transform((value) => value.trim()),
+      })
+      .refine((data) => data.password === data.password_confirmation, {
+        message: 'Passwords do not match.',
+        path: ['password_confirmation'],
+      });
+
+    // Regular expression to check if the studentId contains only digits
+    const isEmployeeIdValid = /^[0-9]+$/.test(employeeId);
+
+    if (!isEmployeeIdValid) {
+      throw new customError(403, 'Student ID should only contain digits.');
+    }
+
+    const validated = Schema.parse({
+      employeeId,
+      email,
+      fullname,
+      department,
+      mobile,
+      password,
+      password_confirmation,
+    });
+
+    if (!validated.employeeId)
+      throw new customeError(403, 'Student ID is not a valid ID.');
+
+    const user = await userServices.teacherRegistration(validated);
+
+    const token = tokenGenerator(user);
+
+    return res.status(200).json({ user: user, token });
   } catch (error) {
     errHandler(error, res);
   }
@@ -95,11 +246,11 @@ export const changePassword = async (
 ) => {
   try {
     const { current_password, new_password, password_confirmation } = req.body;
-    const userId = req.user?.id;
+    const id = req.user?.id;
 
     const Schema = z
       .object({
-        userId: z.number({ required_error: 'User ID is required.' }),
+        id: z.number({ required_error: 'User ID is required.' }),
         current_password: z
           .string({ required_error: 'Current Password is required.' })
           .transform((value) => value.trim()),
@@ -122,7 +273,7 @@ export const changePassword = async (
       current_password,
       new_password,
       password_confirmation,
-      userId,
+      id,
     });
 
     const updatedProfile = await userServices.changePassword(validated);
@@ -138,11 +289,11 @@ export const updateProfile = async (
   res: Response
 ) => {
   try {
-    const { email, fullname, mobile, course, college } = req.body;
-    const studentId = req.user?.id;
+    const { email, fullname, mobile, course, college, department } = req.body;
+    const id = req.user?.id;
 
     const Schema = z.object({
-      studentId: z.number({ required_error: 'Student ID is required.' }),
+      id: z.number({ required_error: 'Student ID is required.' }),
       email: z
         .string({ required_error: 'Email is required' })
         .email()
@@ -159,15 +310,21 @@ export const updateProfile = async (
       college: z.string({ required_error: 'College is required.' }).min(1, {
         message: 'College is required.',
       }),
+      department: z
+        .string({ required_error: 'Department is required.' })
+        .min(1, {
+          message: 'Department is required.',
+        }),
       mobile: z.string({ required_error: 'Mobile number is required.' }),
     });
 
     const validated = Schema.parse({
-      studentId,
+      id,
       email,
       fullname,
       course,
       college,
+      department,
       mobile,
     });
 
@@ -265,7 +422,7 @@ export const suspendStudent = async (
       id,
     });
 
-    const student = await userServices.suspendStudent(validated.id);
+    const student = await userServices.suspendUser(validated.id);
 
     return res.status(200).json(student);
   } catch (error) {
@@ -288,7 +445,7 @@ export const unsuspendStudent = async (
       id,
     });
 
-    const student = await userServices.unsuspendStudent(validated.id);
+    const student = await userServices.unsuspendUser(validated.id);
 
     return res.status(200).json(student);
   } catch (error) {
