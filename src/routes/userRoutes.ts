@@ -2,6 +2,8 @@ import express from 'express';
 import jwtVerifier from '../middlewares/jwtVerifier';
 import {
   studentRegistration,
+  graduateRegistration,
+  teacherRegistration,
   updateProfile,
   changePassword,
   getAllStudents,
@@ -14,7 +16,9 @@ import statusVerifier from '../middlewares/statusVerifier';
 
 const studentRouter = express.Router();
 
-studentRouter.post('/register', studentRegistration);
+studentRouter.post('/register/student', studentRegistration);
+studentRouter.post('/register/graduate', graduateRegistration);
+studentRouter.post('/register/teacher', teacherRegistration);
 
 studentRouter.use(jwtVerifier);
 studentRouter.use(statusVerifier);

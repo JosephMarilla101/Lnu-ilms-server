@@ -57,7 +57,7 @@ app.all('/api', (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/student', userRoutes);
+app.use('/api/user', userRoutes);
 app.use('/api/librarian', librarianRoutes);
 app.use('/api/author', authorRoutes);
 app.use('/api/category', categoryRoutes);
