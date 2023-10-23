@@ -290,10 +290,11 @@ export const updateProfile = async (
 ) => {
   try {
     const { email, fullname, mobile, course, college, department } = req.body;
+    const user = req.user;
     const id = req.user?.id;
 
     const Schema = z.object({
-      id: z.number({ required_error: 'Student ID is required.' }),
+      id: z.number({ required_error: 'ID is required.' }),
       email: z
         .string({ required_error: 'Email is required' })
         .email()
@@ -328,7 +329,7 @@ export const updateProfile = async (
       mobile,
     });
 
-    const profile = await userServices.updateProfile(validated);
+    const profile = await userServices.updateStudentProfile(validated);
 
     return res.status(200).json(profile);
   } catch (error) {

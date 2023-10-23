@@ -105,7 +105,11 @@ export const totalStudents = async (): Promise<number> => {
 };
 
 export const totalLibrarians = async (): Promise<number> => {
-  const total = await prisma.librarian.count();
+  const total = await prisma.user.count({
+    where: {
+      role: 'LIBRARIAN',
+    },
+  });
 
   return total;
 };

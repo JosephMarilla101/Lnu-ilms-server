@@ -12,7 +12,7 @@ const authRouter = express.Router();
 
 authRouter.post('/login/admin', adminLogin);
 authRouter.post('/login/librarian', librarianLogin);
-authRouter.post('/login/student', userLogin);
+authRouter.post('/login/user', userLogin);
 
 authRouter.use(jwtVerifier);
 authRouter.use(statusVerifier);

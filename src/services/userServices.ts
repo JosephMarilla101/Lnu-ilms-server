@@ -1,9 +1,48 @@
 import { PrismaClient, User } from '@prisma/client';
 import bcrypt from 'bcrypt';
-import { UserRoles } from '@prisma/client';
 import customeError from '../utils/customError';
 
 const prisma = new PrismaClient();
+
+export const librarianRegistration = async ({
+  employeeId,
+  email,
+  username,
+  fullname,
+  mobile,
+  password,
+}: {
+  employeeId: number;
+  email: string;
+  username: string;
+  fullname: string;
+  mobile: string;
+  password: string;
+}) => {
+  await isUniqueUsername(username);
+  await isUniqueId(employeeId);
+  await isUniqueEmail(email);
+
+  const hashPassword = bcrypt.hashSync(password, 10);
+
+  const librarian = await prisma.user.create({
+    data: {
+      role: 'LIBRARIAN',
+      email,
+      username,
+      password: hashPassword,
+      profile: {
+        create: {
+          id: employeeId,
+          fullname,
+          mobile,
+        },
+      },
+    },
+  });
+
+  return librarian;
+};
 
 export const studentRegistration = async ({
   studentId,
@@ -160,11 +199,10 @@ export const changePassword = async ({
   return updatedUser;
 };
 
-export const updateProfile = async ({
+export const updateStudentProfile = async ({
   fullname,
   email,
   mobile,
-  department,
   course,
   college,
   id,
@@ -172,7 +210,6 @@ export const updateProfile = async ({
   fullname: string;
   email: string;
   mobile: string;
-  department: string;
   course: string;
   college: string;
   id: number;
@@ -190,6 +227,97 @@ export const updateProfile = async ({
   const updatedProfile = await prisma.user.update({
     where: {
       id,
+      AND: {
+        role: 'STUDENT',
+      },
+    },
+    data: {
+      email,
+      profile: {
+        update: {
+          fullname,
+          mobile,
+          course,
+          college,
+        },
+      },
+    },
+  });
+
+  return updatedProfile;
+};
+
+export const updateGraduateProfile = async ({
+  fullname,
+  email,
+  mobile,
+  id,
+}: {
+  fullname: string;
+  email: string;
+  mobile: string;
+  id: number;
+}) => {
+  const currentProfile = await prisma.user.findUniqueOrThrow({
+    where: {
+      id,
+    },
+  });
+
+  if (currentProfile.email !== email) {
+    await isUniqueEmail(email);
+  }
+
+  const updatedProfile = await prisma.user.update({
+    where: {
+      id,
+      AND: {
+        role: 'GRADUATE',
+      },
+    },
+    data: {
+      email,
+      profile: {
+        update: {
+          fullname,
+          mobile,
+        },
+      },
+    },
+  });
+
+  return updatedProfile;
+};
+
+export const updateTeacherProfile = async ({
+  fullname,
+  email,
+  mobile,
+  department,
+  id,
+}: {
+  fullname: string;
+  email: string;
+  mobile: string;
+  department: string;
+  id: number;
+}) => {
+  const currentProfile = await prisma.user.findUniqueOrThrow({
+    where: {
+      id,
+    },
+  });
+
+  if (currentProfile.email !== email) {
+    await isUniqueEmail(email);
+  }
+
+  const updatedProfile = await prisma.user.update({
+    where: {
+      id,
+      AND: {
+        role: 'TEACHER',
+      },
     },
     data: {
       email,
@@ -198,8 +326,6 @@ export const updateProfile = async ({
           fullname,
           mobile,
           department,
-          course,
-          college,
         },
       },
     },
@@ -251,6 +377,35 @@ export const getAllStudents = async () => {
       course: data?.profile?.course,
       college: data?.profile?.college,
       mobile: data?.profile?.mobile,
+      status: data.status,
+      createdAt: data.createdAt,
+      updatedAt: data.updatedAt,
+    };
+  });
+
+  return flattenResult;
+};
+
+export const getAllLibrarians = async () => {
+  const librarian = await prisma.user.findMany({
+    where: {
+      role: 'LIBRARIAN',
+    },
+    include: {
+      profile: true,
+    },
+  });
+
+  const flattenResult = librarian.map((data) => {
+    return {
+      id: data.id,
+      employeeId: data.profile?.id.toString(), //convert to string in order to be searchable in data table
+      email: data.email,
+      username: data.username,
+      fullname: data.profile?.fullname,
+      mobile: data.profile?.mobile,
+      profilePhoto: data.profile?.profilePhoto,
+      profilePhotoId: data.profile?.profilePhotoId,
       status: data.status,
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
@@ -321,4 +476,14 @@ const isUniqueEmail = async (email: string) => {
   });
 
   if (user) throw new customeError(403, 'Email address is already in use.');
+};
+
+const isUniqueUsername = async (username: string) => {
+  const librarian = await prisma.user.findUnique({
+    where: {
+      username,
+    },
+  });
+
+  if (librarian) throw new customeError(403, 'Username is already in use.');
 };
