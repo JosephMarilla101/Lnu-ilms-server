@@ -7,6 +7,78 @@ import tokenGenerator from '../utils/tokenGenerator';
 import { AuthenticatedRequest } from '../middlewares/jwtVerifier';
 import customError from '../utils/customError';
 
+export const librarianRegistration = async (req: Request, res: Response) => {
+  try {
+    const {
+      id,
+      email,
+      username,
+      fullname,
+      mobile,
+      password,
+      password_confirmation,
+    } = req.body;
+
+    const Schema = z
+      .object({
+        id: z
+          .string({ required_error: 'Employee ID is required.' })
+          .min(4, {
+            message: 'Employee ID must be at least 4 characters.',
+          })
+          .max(8, { message: 'Employee ID must not exceed 8 characters.' })
+          .transform((value) => parseInt(value)),
+        email: z.string({ required_error: 'Email is required' }).trim().email(),
+        username: z.string({ required_error: 'Username is required.' }).trim(),
+        fullname: z.string({ required_error: 'Full Name is required.' }).trim(),
+        mobile: z
+          .string({ required_error: 'Mobile number is required.' })
+          .trim(),
+        password: z
+          .string({ required_error: 'Password is required.' })
+          .trim()
+          .min(6, 'Password must contain at least 6 character(s).'),
+        password_confirmation: z
+          .string({
+            required_error: 'Password confimation is required.',
+          })
+          .trim(),
+      })
+      .refine((data) => data.password === data.password_confirmation, {
+        message: 'Passwords do not match.',
+        path: ['password_confirmation'],
+      });
+
+    // Regular expression to check if the studentId contains only digits
+    const isEmployeeIdValid = /^[0-9]+$/.test(id);
+
+    if (!isEmployeeIdValid) {
+      throw new customError(403, 'Employee ID should only contain digits.');
+    }
+
+    const validated = Schema.parse({
+      id,
+      email,
+      username,
+      fullname,
+      mobile,
+      password,
+      password_confirmation,
+    });
+
+    if (!validated.id)
+      throw new customeError(403, 'Employee ID is not a valid ID.');
+
+    const user = await userServices.librarianRegistration(validated);
+
+    const token = tokenGenerator(user);
+
+    return res.status(200).json({ user: user, token });
+  } catch (error) {
+    errHandler(error, res);
+  }
+};
+
 export const studentRegistration = async (req: Request, res: Response) => {
   try {
     const {
@@ -214,7 +286,7 @@ export const teacherRegistration = async (req: Request, res: Response) => {
     const isEmployeeIdValid = /^[0-9]+$/.test(employeeId);
 
     if (!isEmployeeIdValid) {
-      throw new customError(403, 'Student ID should only contain digits.');
+      throw new customError(403, 'Employee ID should only contain digits.');
     }
 
     const validated = Schema.parse({
@@ -228,7 +300,7 @@ export const teacherRegistration = async (req: Request, res: Response) => {
     });
 
     if (!validated.employeeId)
-      throw new customeError(403, 'Student ID is not a valid ID.');
+      throw new customeError(403, 'Employee ID is not a valid ID.');
 
     const user = await userServices.teacherRegistration(validated);
 
@@ -289,49 +361,56 @@ export const updateProfile = async (
   res: Response
 ) => {
   try {
-    const { email, fullname, mobile, course, college, department } = req.body;
+    const { email, username, fullname, mobile, course, college, department } =
+      req.body;
     const user = req.user;
     const id = req.user?.id;
 
-    const Schema = z.object({
+    const BaseSchema = z.object({
       id: z.number({ required_error: 'ID is required.' }),
       email: z
         .string({ required_error: 'Email is required' })
+        .trim()
         .email()
         .transform((value) => value.toLocaleLowerCase().trim()),
-      fullname: z
-        .string({ required_error: 'Full Name is required.' })
-        .min(1, {
-          message: 'Course is required.',
-        })
-        .transform((value) => value.trim()),
-      course: z.string({ required_error: 'Course is required.' }).min(1, {
-        message: 'Course is required.',
-      }),
-      college: z.string({ required_error: 'College is required.' }).min(1, {
-        message: 'College is required.',
-      }),
-      department: z
-        .string({ required_error: 'Department is required.' })
-        .min(1, {
-          message: 'Department is required.',
-        }),
-      mobile: z.string({ required_error: 'Mobile number is required.' }),
     });
 
-    const validated = Schema.parse({
-      id,
-      email,
-      fullname,
-      course,
-      college,
-      department,
-      mobile,
-    });
+    if (user?.role === 'ADMIN') {
+      const AdminSchema = BaseSchema.extend({
+        username: z
+          .string({ required_error: 'Username is required.' })
+          .trim()
+          .min(1, {
+            message: 'Username is required.',
+          }),
+      });
 
-    const profile = await userServices.updateStudentProfile(validated);
+      const validated = AdminSchema.parse({
+        id,
+        email,
+        username,
+      });
 
-    return res.status(200).json(profile);
+      const profile = await userServices.updateAdminProfile(validated);
+      return res.status(200).json(profile);
+    }
+
+    if (user?.role === 'LIBRARIAN') {
+    }
+
+    // const validated = Schema.parse({
+    //   id,
+    //   email,
+    //   fullname,
+    //   course,
+    //   college,
+    //   department,
+    //   mobile,
+    // });
+
+    // const profile = await userServices.updateStudentProfile(validated);
+
+    // return res.status(200).json(profile);
   } catch (error) {
     errHandler(error, res);
   }

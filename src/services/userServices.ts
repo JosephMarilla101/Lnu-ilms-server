@@ -5,14 +5,14 @@ import customeError from '../utils/customError';
 const prisma = new PrismaClient();
 
 export const librarianRegistration = async ({
-  employeeId,
+  id,
   email,
   username,
   fullname,
   mobile,
   password,
 }: {
-  employeeId: number;
+  id: number;
   email: string;
   username: string;
   fullname: string;
@@ -20,7 +20,7 @@ export const librarianRegistration = async ({
   password: string;
 }) => {
   await isUniqueUsername(username);
-  await isUniqueId(employeeId);
+  await isUniqueId(id);
   await isUniqueEmail(email);
 
   const hashPassword = bcrypt.hashSync(password, 10);
@@ -33,11 +33,14 @@ export const librarianRegistration = async ({
       password: hashPassword,
       profile: {
         create: {
-          id: employeeId,
+          id,
           fullname,
           mobile,
         },
       },
+    },
+    include: {
+      profile: true,
     },
   });
 
@@ -81,6 +84,9 @@ export const studentRegistration = async ({
         },
       },
     },
+    include: {
+      profile: true,
+    },
   });
 
   return user;
@@ -116,6 +122,9 @@ export const graduateRegistration = async ({
           mobile,
         },
       },
+    },
+    include: {
+      profile: true,
     },
   });
 
@@ -156,6 +165,9 @@ export const teacherRegistration = async ({
         },
       },
     },
+    include: {
+      profile: true,
+    },
   });
 
   return user;
@@ -194,6 +206,9 @@ export const changePassword = async ({
     data: {
       password: hashNewPassword,
     },
+    include: {
+      profile: true,
+    },
   });
 
   return updatedUser;
@@ -217,6 +232,9 @@ export const updateStudentProfile = async ({
   const currentProfile = await prisma.user.findUniqueOrThrow({
     where: {
       id,
+      AND: {
+        role: 'STUDENT',
+      },
     },
   });
 
@@ -242,6 +260,9 @@ export const updateStudentProfile = async ({
         },
       },
     },
+    include: {
+      profile: true,
+    },
   });
 
   return updatedProfile;
@@ -261,6 +282,9 @@ export const updateGraduateProfile = async ({
   const currentProfile = await prisma.user.findUniqueOrThrow({
     where: {
       id,
+      AND: {
+        role: 'GRADUATE',
+      },
     },
   });
 
@@ -284,6 +308,9 @@ export const updateGraduateProfile = async ({
         },
       },
     },
+    include: {
+      profile: true,
+    },
   });
 
   return updatedProfile;
@@ -305,6 +332,9 @@ export const updateTeacherProfile = async ({
   const currentProfile = await prisma.user.findUniqueOrThrow({
     where: {
       id,
+      AND: {
+        role: 'TEACHER',
+      },
     },
   });
 
@@ -329,6 +359,53 @@ export const updateTeacherProfile = async ({
         },
       },
     },
+    include: {
+      profile: true,
+    },
+  });
+
+  return updatedProfile;
+};
+
+export const updateAdminProfile = async ({
+  id,
+  email,
+  username,
+}: {
+  id: number;
+  email: string;
+  username: string;
+}) => {
+  const currentProfile = await prisma.user.findUniqueOrThrow({
+    where: {
+      id,
+      AND: {
+        role: 'ADMIN',
+      },
+    },
+  });
+
+  if (currentProfile.email !== email) {
+    await isUniqueEmail(email);
+  }
+  if (currentProfile.username !== username) {
+    await isUniqueUsername(username);
+  }
+
+  const updatedProfile = await prisma.user.update({
+    where: {
+      id,
+      AND: {
+        role: 'ADMIN',
+      },
+    },
+    data: {
+      email,
+      username,
+    },
+    include: {
+      profile: true,
+    },
   });
 
   return updatedProfile;
@@ -350,6 +427,9 @@ export const updateProfilePhoto = async ({
     data: {
       profilePhoto,
       profilePhotoId,
+    },
+    include: {
+      user: true,
     },
   });
 

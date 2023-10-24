@@ -4,6 +4,7 @@ import {
   studentRegistration,
   graduateRegistration,
   teacherRegistration,
+  librarianRegistration,
   updateProfile,
   changePassword,
   getAllStudents,
@@ -19,6 +20,7 @@ const studentRouter = express.Router();
 studentRouter.post('/register/student', studentRegistration);
 studentRouter.post('/register/graduate', graduateRegistration);
 studentRouter.post('/register/teacher', teacherRegistration);
+studentRouter.post('/register/librarian', librarianRegistration);
 
 studentRouter.use(jwtVerifier);
 studentRouter.use(statusVerifier);
