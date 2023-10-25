@@ -48,7 +48,7 @@ export const librarianRegistration = async ({
 };
 
 export const studentRegistration = async ({
-  studentId,
+  id,
   email,
   fullname,
   course,
@@ -56,7 +56,7 @@ export const studentRegistration = async ({
   mobile,
   password,
 }: {
-  studentId: number;
+  id: number;
   email: string;
   fullname: string;
   course: string;
@@ -64,7 +64,7 @@ export const studentRegistration = async ({
   mobile: string;
   password: string;
 }): Promise<User> => {
-  await isUniqueId(studentId);
+  await isUniqueId(id);
   await isUniqueEmail(email);
 
   const hashPassword = bcrypt.hashSync(password, 10);
@@ -76,7 +76,7 @@ export const studentRegistration = async ({
       password: hashPassword,
       profile: {
         create: {
-          id: studentId,
+          id,
           fullname,
           course,
           college,
@@ -93,19 +93,19 @@ export const studentRegistration = async ({
 };
 
 export const graduateRegistration = async ({
-  studentId,
+  id,
   email,
   fullname,
   mobile,
   password,
 }: {
-  studentId: number;
+  id: number;
   email: string;
   fullname: string;
   mobile: string;
   password: string;
 }): Promise<User> => {
-  await isUniqueId(studentId);
+  await isUniqueId(id);
   await isUniqueEmail(email);
 
   const hashPassword = bcrypt.hashSync(password, 10);
@@ -117,7 +117,7 @@ export const graduateRegistration = async ({
       password: hashPassword,
       profile: {
         create: {
-          id: studentId,
+          id,
           fullname,
           mobile,
         },
@@ -132,21 +132,21 @@ export const graduateRegistration = async ({
 };
 
 export const teacherRegistration = async ({
-  employeeId,
+  id,
   email,
   fullname,
   department,
   mobile,
   password,
 }: {
-  employeeId: number;
+  id: number;
   email: string;
   fullname: string;
   department: string;
   mobile: string;
   password: string;
 }): Promise<User> => {
-  await isUniqueId(employeeId);
+  await isUniqueId(id);
   await isUniqueEmail(email);
 
   const hashPassword = bcrypt.hashSync(password, 10);
@@ -158,7 +158,7 @@ export const teacherRegistration = async ({
       password: hashPassword,
       profile: {
         create: {
-          id: employeeId,
+          id,
           fullname,
           department,
           mobile,
@@ -411,6 +411,60 @@ export const updateAdminProfile = async ({
   return updatedProfile;
 };
 
+export const updateLibrarianProfile = async ({
+  id,
+  email,
+  username,
+  fullname,
+  mobile,
+}: {
+  id: number;
+  email: string;
+  username: string;
+  fullname: string;
+  mobile: string;
+}) => {
+  const currentProfile = await prisma.user.findUniqueOrThrow({
+    where: {
+      id,
+      AND: {
+        role: 'LIBRARIAN',
+      },
+    },
+  });
+
+  if (currentProfile.email !== email) {
+    await isUniqueEmail(email);
+  }
+  if (currentProfile.username !== username) {
+    await isUniqueUsername(username);
+  }
+
+  const updatedProfile = await prisma.user.update({
+    where: {
+      id,
+      AND: {
+        role: 'LIBRARIAN',
+      },
+    },
+    data: {
+      email,
+      username,
+      profile: {
+        update: {
+          fullname,
+          mobile,
+        },
+      },
+    },
+    include: {
+      profile: true,
+    },
+  });
+
+  return updatedProfile;
+};
+
 export const updateProfilePhoto = async ({
   id,
   profilePhoto,
@@ -545,7 +599,7 @@ const isUniqueId = async (id: number) => {
     },
   });
 
-  if (user) throw new customeError(403, 'Student ID is not valid.');
+  if (user) throw new customeError(403, 'ID must be unique.');
 };
 
 const isUniqueEmail = async (email: string) => {

@@ -8,6 +8,7 @@ import {
   updateProfile,
   changePassword,
   getAllStudents,
+  getAllLibrarians,
   suspendStudent,
   unsuspendStudent,
   updateProfilePhoto,
@@ -15,22 +16,23 @@ import {
 } from '../controllers/userController';
 import statusVerifier from '../middlewares/statusVerifier';
 
-const studentRouter = express.Router();
+const userRouter = express.Router();
 
-studentRouter.post('/register/student', studentRegistration);
-studentRouter.post('/register/graduate', graduateRegistration);
-studentRouter.post('/register/teacher', teacherRegistration);
-studentRouter.post('/register/librarian', librarianRegistration);
+userRouter.post('/register/student', studentRegistration);
+userRouter.post('/register/graduate', graduateRegistration);
+userRouter.post('/register/teacher', teacherRegistration);
+userRouter.post('/register/librarian', librarianRegistration);
 
-studentRouter.use(jwtVerifier);
-studentRouter.use(statusVerifier);
+userRouter.use(jwtVerifier);
+userRouter.use(statusVerifier);
 
-studentRouter.get('/all', getAllStudents);
-studentRouter.get('/borrowed_books/:id', getStudentBorrowedBooks);
-studentRouter.post('/suspend', suspendStudent);
-studentRouter.post('/unsuspend', unsuspendStudent);
-studentRouter.put('/', updateProfile);
-studentRouter.put('/profile_photo', updateProfilePhoto);
-studentRouter.put('/change_password', changePassword);
+userRouter.get('/all_students', getAllStudents);
+userRouter.get('/all_librarians', getAllLibrarians);
+userRouter.get('/borrowed_books/:id', getStudentBorrowedBooks);
+userRouter.post('/suspend', suspendStudent);
+userRouter.post('/unsuspend', unsuspendStudent);
+userRouter.put('/', updateProfile);
+userRouter.put('/profile_photo', updateProfilePhoto);
+userRouter.put('/change_password', changePassword);
 
-export default studentRouter;
+export default userRouter;

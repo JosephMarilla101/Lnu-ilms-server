@@ -82,7 +82,7 @@ export const librarianRegistration = async (req: Request, res: Response) => {
 export const studentRegistration = async (req: Request, res: Response) => {
   try {
     const {
-      studentId,
+      id,
       email,
       fullname,
       course,
@@ -94,7 +94,7 @@ export const studentRegistration = async (req: Request, res: Response) => {
 
     const Schema = z
       .object({
-        studentId: z
+        id: z
           .string({ required_error: 'Student ID is required.' })
           .min(4, {
             message: 'Student ID must be at least 4 characters.',
@@ -130,15 +130,15 @@ export const studentRegistration = async (req: Request, res: Response) => {
         path: ['password_confirmation'],
       });
 
-    // Regular expression to check if the studentId contains only digits
-    const isStuentIdValid = /^[0-9]+$/.test(studentId);
+    // Regular expression to check if the id contains only digits
+    const isStuentIdValid = /^[0-9]+$/.test(id);
 
     if (!isStuentIdValid) {
       throw new customError(403, 'Student ID should only contain digits.');
     }
 
     const validated = Schema.parse({
-      studentId,
+      id,
       email,
       fullname,
       course,
@@ -148,7 +148,7 @@ export const studentRegistration = async (req: Request, res: Response) => {
       password_confirmation,
     });
 
-    if (!validated.studentId)
+    if (!validated.id)
       throw new customeError(403, 'Student ID is not a valid ID.');
 
     const user = await userServices.studentRegistration(validated);
@@ -163,18 +163,12 @@ export const studentRegistration = async (req: Request, res: Response) => {
 
 export const graduateRegistration = async (req: Request, res: Response) => {
   try {
-    const {
-      studentId,
-      email,
-      fullname,
-      mobile,
-      password,
-      password_confirmation,
-    } = req.body;
+    const { id, email, fullname, mobile, password, password_confirmation } =
+      req.body;
 
     const Schema = z
       .object({
-        studentId: z
+        id: z
           .string({ required_error: 'Student ID is required.' })
           .min(4, {
             message: 'Student ID must be at least 4 characters.',
@@ -204,15 +198,15 @@ export const graduateRegistration = async (req: Request, res: Response) => {
         path: ['password_confirmation'],
       });
 
-    // Regular expression to check if the studentId contains only digits
-    const isStuentIdValid = /^[0-9]+$/.test(studentId);
+    // Regular expression to check if the id contains only digits
+    const isStuentIdValid = /^[0-9]+$/.test(id);
 
     if (!isStuentIdValid) {
       throw new customError(403, 'Student ID should only contain digits.');
     }
 
     const validated = Schema.parse({
-      studentId,
+      id,
       email,
       fullname,
       mobile,
@@ -220,7 +214,7 @@ export const graduateRegistration = async (req: Request, res: Response) => {
       password_confirmation,
     });
 
-    if (!validated.studentId)
+    if (!validated.id)
       throw new customeError(403, 'Student ID is not a valid ID.');
 
     const user = await userServices.graduateRegistration(validated);
@@ -236,7 +230,7 @@ export const graduateRegistration = async (req: Request, res: Response) => {
 export const teacherRegistration = async (req: Request, res: Response) => {
   try {
     const {
-      employeeId,
+      id,
       email,
       fullname,
       department,
@@ -247,7 +241,7 @@ export const teacherRegistration = async (req: Request, res: Response) => {
 
     const Schema = z
       .object({
-        employeeId: z
+        id: z
           .string({ required_error: 'Employee ID is required.' })
           .min(4, {
             message: 'Employee ID must be at least 4 characters.',
@@ -283,14 +277,14 @@ export const teacherRegistration = async (req: Request, res: Response) => {
       });
 
     // Regular expression to check if the studentId contains only digits
-    const isEmployeeIdValid = /^[0-9]+$/.test(employeeId);
+    const isEmployeeIdValid = /^[0-9]+$/.test(id);
 
     if (!isEmployeeIdValid) {
       throw new customError(403, 'Employee ID should only contain digits.');
     }
 
     const validated = Schema.parse({
-      employeeId,
+      id,
       email,
       fullname,
       department,
@@ -299,7 +293,7 @@ export const teacherRegistration = async (req: Request, res: Response) => {
       password_confirmation,
     });
 
-    if (!validated.employeeId)
+    if (!validated.id)
       throw new customeError(403, 'Employee ID is not a valid ID.');
 
     const user = await userServices.teacherRegistration(validated);
@@ -396,21 +390,142 @@ export const updateProfile = async (
     }
 
     if (user?.role === 'LIBRARIAN') {
+      const LibrarianSchema = BaseSchema.extend({
+        username: z
+          .string({ required_error: 'Username is required.' })
+          .trim()
+          .min(1, {
+            message: 'Username is required.',
+          }),
+        fullname: z
+          .string({ required_error: 'Full Name is required.' })
+          .trim()
+          .min(1, {
+            message: 'Full Name is required.',
+          }),
+        mobile: z
+          .string({ required_error: 'Mobile # is required.' })
+          .trim()
+          .min(1, {
+            message: 'Mobile # is required.',
+          }),
+      });
+
+      const validated = LibrarianSchema.parse({
+        id,
+        email,
+        username,
+        fullname,
+        mobile,
+      });
+
+      const profile = await userServices.updateLibrarianProfile(validated);
+      return res.status(200).json(profile);
     }
 
-    // const validated = Schema.parse({
-    //   id,
-    //   email,
-    //   fullname,
-    //   course,
-    //   college,
-    //   department,
-    //   mobile,
-    // });
+    if (user?.role === 'TEACHER') {
+      const TeacherSchema = BaseSchema.extend({
+        fullname: z
+          .string({ required_error: 'Full Name is required.' })
+          .trim()
+          .min(1, {
+            message: 'Full Name is required.',
+          }),
+        department: z
+          .string({ required_error: 'Department is required.' })
+          .trim()
+          .min(1, {
+            message: 'Department is required.',
+          }),
+        mobile: z
+          .string({ required_error: 'Mobile # is required.' })
+          .trim()
+          .min(1, {
+            message: 'Mobile # is required.',
+          }),
+      });
 
-    // const profile = await userServices.updateStudentProfile(validated);
+      const validated = TeacherSchema.parse({
+        id,
+        email,
+        fullname,
+        department,
+        mobile,
+      });
 
-    // return res.status(200).json(profile);
+      const profile = await userServices.updateTeacherProfile(validated);
+      return res.status(200).json(profile);
+    }
+
+    if (user?.role === 'GRADUATE') {
+      const GraduateSchema = BaseSchema.extend({
+        fullname: z
+          .string({ required_error: 'Full Name is required.' })
+          .trim()
+          .min(1, {
+            message: 'Full Name is required.',
+          }),
+        mobile: z
+          .string({ required_error: 'Mobile # is required.' })
+          .trim()
+          .min(1, {
+            message: 'Mobile # is required.',
+          }),
+      });
+
+      const validated = GraduateSchema.parse({
+        id,
+        email,
+        fullname,
+        mobile,
+      });
+
+      const profile = await userServices.updateGraduateProfile(validated);
+      return res.status(200).json(profile);
+    }
+
+    if (user?.role === 'STUDENT') {
+      const StudentSchema = BaseSchema.extend({
+        fullname: z
+          .string({ required_error: 'Full Name is required.' })
+          .trim()
+          .min(1, {
+            message: 'Full Name is required.',
+          }),
+        college: z
+          .string({ required_error: 'College is required.' })
+          .trim()
+          .min(1, {
+            message: 'College is required.',
+          }),
+        course: z
+          .string({ required_error: 'Course is required.' })
+          .trim()
+          .min(1, {
+            message: 'Course is required.',
+          }),
+        mobile: z
+          .string({ required_error: 'Mobile # is required.' })
+          .trim()
+          .min(1, {
+            message: 'Mobile # is required.',
+          }),
+      });
+
+      const validated = StudentSchema.parse({
+        id,
+        email,
+        fullname,
+        college,
+        course,
+        mobile,
+      });
+
+      const profile = await userServices.updateStudentProfile(validated);
+      return res.status(200).json(profile);
+    }
+
+    throw new customError(401, 'An error has occured.');
   } catch (error) {
     errHandler(error, res);
   }
@@ -456,6 +571,19 @@ export const getAllStudents = async (
     const students = await userServices.getAllStudents();
 
     return res.status(200).json(students);
+  } catch (error) {
+    errHandler(error, res);
+  }
+};
+
+export const getAllLibrarians = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const librarians = await userServices.getAllLibrarians();
+
+    return res.status(200).json(librarians);
   } catch (error) {
     errHandler(error, res);
   }
