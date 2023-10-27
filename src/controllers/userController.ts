@@ -576,6 +576,32 @@ export const getAllStudents = async (
   }
 };
 
+export const getAllGraduates = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const graduates = await userServices.getAllGraduates();
+
+    return res.status(200).json(graduates);
+  } catch (error) {
+    errHandler(error, res);
+  }
+};
+
+export const getAllTeachers = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const teachers = await userServices.getAllTeachers();
+
+    return res.status(200).json(teachers);
+  } catch (error) {
+    errHandler(error, res);
+  }
+};
+
 export const getAllLibrarians = async (
   req: AuthenticatedRequest,
   res: Response
@@ -599,8 +625,8 @@ export const getStudentBorrowedBooks = async (
     const Schema = z.object({
       id: z
         .string({
-          required_error: 'Student ID is required',
-          invalid_type_error: 'Student ID is not a valid ID',
+          required_error: 'ID is required',
+          invalid_type_error: 'ID is not a valid ID',
         })
         .transform((value) => parseInt(value)),
     });

@@ -8,6 +8,8 @@ import {
   updateProfile,
   changePassword,
   getAllStudents,
+  getAllGraduates,
+  getAllTeachers,
   getAllLibrarians,
   suspendStudent,
   unsuspendStudent,
@@ -27,6 +29,8 @@ userRouter.use(jwtVerifier);
 userRouter.use(statusVerifier);
 
 userRouter.get('/all_students', getAllStudents);
+userRouter.get('/all_graduates', getAllGraduates);
+userRouter.get('/all_teachers', getAllTeachers);
 userRouter.get('/all_librarians', getAllLibrarians);
 userRouter.get('/borrowed_books/:id', getStudentBorrowedBooks);
 userRouter.post('/suspend', suspendStudent);

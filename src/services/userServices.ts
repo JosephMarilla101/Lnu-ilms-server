@@ -520,6 +520,63 @@ export const getAllStudents = async () => {
   return flattenResult;
 };
 
+export const getAllGraduates = async () => {
+  const graduates = await prisma.user.findMany({
+    where: {
+      role: 'GRADUATE',
+    },
+    include: {
+      profile: true,
+    },
+  });
+
+  const flattenResult = graduates.map((data) => {
+    return {
+      id: data.id,
+      email: data.email,
+      studentId: data.profile?.id.toString(), //convert to string in order to be searchable in data table
+      fullname: data?.profile?.fullname,
+      profilePhoto: data?.profile?.profilePhoto,
+      profilePhotoId: data?.profile?.profilePhoto,
+      mobile: data?.profile?.mobile,
+      status: data.status,
+      createdAt: data.createdAt,
+      updatedAt: data.updatedAt,
+    };
+  });
+
+  return flattenResult;
+};
+
+export const getAllTeachers = async () => {
+  const teachers = await prisma.user.findMany({
+    where: {
+      role: 'TEACHER',
+    },
+    include: {
+      profile: true,
+    },
+  });
+
+  const flattenResult = teachers.map((data) => {
+    return {
+      id: data.id,
+      email: data.email,
+      studentId: data.profile?.id.toString(), //convert to string in order to be searchable in data table
+      fullname: data?.profile?.fullname,
+      profilePhoto: data?.profile?.profilePhoto,
+      profilePhotoId: data?.profile?.profilePhoto,
+      department: data.profile?.department,
+      mobile: data?.profile?.mobile,
+      status: data.status,
+      createdAt: data.createdAt,
+      updatedAt: data.updatedAt,
+    };
+  });
+
+  return flattenResult;
+};
+
 export const getAllLibrarians = async () => {
   const librarian = await prisma.user.findMany({
     where: {
@@ -560,6 +617,7 @@ export const getStudentBorrowedBooks = async (id: number) => {
           book: true,
         },
       },
+      profile: true,
     },
   });
 
