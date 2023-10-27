@@ -220,7 +220,11 @@ export const getAllIssuedBooks = async () => {
       },
       user: {
         select: {
-          id: true,
+          profile: {
+            select: {
+              id: true,
+            },
+          },
         },
       },
       dueDate: true,
@@ -238,7 +242,7 @@ export const getAllIssuedBooks = async () => {
       id: data.id,
       isbn: data.book.isbn.toString(), //convert to string in order to be searchable in data table
       bookName: data.book.name,
-      studentId: data.user.id.toString(), //convert to string in order to be searchable in data table
+      studentId: data.user.profile?.id, //convert to string in order to be searchable in data table
       dueDate: data.dueDate,
       returnedDate: data.returnedDate,
       isReturn: data.isReturn,
@@ -266,7 +270,11 @@ export const getALLRequestedBooks = async () => {
       },
       user: {
         select: {
-          id: true,
+          profile: {
+            select: {
+              id: true,
+            },
+          },
         },
       },
       isApproved: true,
@@ -285,7 +293,7 @@ export const getALLRequestedBooks = async () => {
       bookCover: data.book.bookCover,
       copies: data.book.copies,
       isbn: data.book.isbn.toString(), //convert to string in order to be searchable in data table
-      studentId: data.user.id.toString(), //convert to string in order to be searchable in data table
+      studentId: data.user.profile?.id.toString(), //convert to string in order to be searchable in data table
       borrowerId: data.userId,
       isApproved: data.isApproved,
       requestDate: data.requestDate,
