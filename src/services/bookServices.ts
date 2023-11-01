@@ -198,7 +198,7 @@ export const createBorrowedBook = async ({
 
   const borrowedBook = await prisma.borrowedBook.create({
     data: {
-      studentId: request.studentId,
+      userId: request.userId,
       bookId: request.bookId,
       dueDate,
     },
@@ -218,9 +218,13 @@ export const getAllIssuedBooks = async () => {
           bookCover: true,
         },
       },
-      student: {
+      user: {
         select: {
-          studentId: true,
+          profile: {
+            select: {
+              id: true,
+            },
+          },
         },
       },
       dueDate: true,
@@ -238,7 +242,7 @@ export const getAllIssuedBooks = async () => {
       id: data.id,
       isbn: data.book.isbn.toString(), //convert to string in order to be searchable in data table
       bookName: data.book.name,
-      studentId: data.student.studentId.toString(), //convert to string in order to be searchable in data table
+      studentId: data.user.profile?.id, //convert to string in order to be searchable in data table
       dueDate: data.dueDate,
       returnedDate: data.returnedDate,
       isReturn: data.isReturn,
@@ -255,7 +259,7 @@ export const getALLRequestedBooks = async () => {
     select: {
       id: true,
       bookId: true,
-      studentId: true,
+      userId: true,
       book: {
         select: {
           name: true,
@@ -264,9 +268,13 @@ export const getALLRequestedBooks = async () => {
           copies: true,
         },
       },
-      student: {
+      user: {
         select: {
-          studentId: true,
+          profile: {
+            select: {
+              id: true,
+            },
+          },
         },
       },
       isApproved: true,
@@ -285,8 +293,8 @@ export const getALLRequestedBooks = async () => {
       bookCover: data.book.bookCover,
       copies: data.book.copies,
       isbn: data.book.isbn.toString(), //convert to string in order to be searchable in data table
-      studentId: data.student.studentId.toString(), //convert to string in order to be searchable in data table
-      borrowerId: data.studentId,
+      studentId: data.user.profile?.id.toString(), //convert to string in order to be searchable in data table
+      borrowerId: data.userId,
       isApproved: data.isApproved,
       requestDate: data.requestDate,
     };
@@ -337,10 +345,10 @@ export const getBookList = async ({
   return booksId;
 };
 
-export const getRequestedBook = async (studentId: number) => {
+export const getRequestedBook = async (userId: number) => {
   const requestedBook = await prisma.borrowRequest.findFirst({
     where: {
-      studentId,
+      userId,
       AND: {
         isApproved: false,
       },
@@ -356,10 +364,10 @@ export const getRequestedBook = async (studentId: number) => {
   return requestedBook;
 };
 
-export const getUnreturnedBook = async (studentId: number) => {
+export const getUnreturnedBook = async (userId: number) => {
   const requestedBook = await prisma.borrowedBook.findFirst({
     where: {
-      studentId,
+      userId,
       AND: {
         isReturn: false,
       },
@@ -420,10 +428,10 @@ export const returnBorrowedBook = async ({
 
 export const requestBook = async ({
   bookId,
-  studentId,
+  userId,
 }: {
   bookId: number;
-  studentId: number;
+  userId: number;
 }) => {
   const book = await prisma.book.findUniqueOrThrow({
     where: {
@@ -437,7 +445,7 @@ export const requestBook = async ({
   const request = await prisma.borrowRequest.create({
     data: {
       bookId,
-      studentId,
+      userId,
     },
   });
 
@@ -446,14 +454,14 @@ export const requestBook = async ({
 
 export const cancelRequest = async ({
   bookId,
-  studentId,
+  userId,
 }: {
   bookId: number;
-  studentId: number;
+  userId: number;
 }) => {
   const request = await prisma.borrowRequest.findFirst({
     where: {
-      studentId,
+      userId,
       AND: {
         bookId,
       },
@@ -471,10 +479,10 @@ export const cancelRequest = async ({
   return request;
 };
 
-export const canBorrow = async (studentId: number): Promise<boolean> => {
+export const canBorrow = async (userId: number): Promise<boolean> => {
   const hasBorrowed = await prisma.borrowedBook.findFirst({
     where: {
-      studentId,
+      userId,
       AND: {
         isReturn: false,
       },
@@ -485,10 +493,10 @@ export const canBorrow = async (studentId: number): Promise<boolean> => {
   else return true;
 };
 
-export const canRequest = async (studentId: number): Promise<boolean> => {
+export const canRequest = async (userId: number): Promise<boolean> => {
   const hasRequested = await prisma.borrowRequest.findFirst({
     where: {
-      studentId,
+      userId,
       AND: {
         isApproved: false,
       },

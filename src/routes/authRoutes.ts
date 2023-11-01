@@ -3,7 +3,7 @@ import jwtVerifier from '../middlewares/jwtVerifier';
 import {
   adminLogin,
   librarianLogin,
-  studentLogin,
+  userLogin,
   authenticateUser,
 } from '../controllers/authController';
 import statusVerifier from '../middlewares/statusVerifier';
@@ -12,7 +12,7 @@ const authRouter = express.Router();
 
 authRouter.post('/login/admin', adminLogin);
 authRouter.post('/login/librarian', librarianLogin);
-authRouter.post('/login/student', studentLogin);
+authRouter.post('/login/user', userLogin);
 
 authRouter.use(jwtVerifier);
 authRouter.use(statusVerifier);

@@ -26,19 +26,33 @@ async function adminSeeder() {
 
   const hashPassword = bcrypt.hashSync(adminPassword, 10);
 
-  await prisma.admin.upsert({
+  await prisma.user.upsert({
     where: { email: adminEmail },
     update: {
       email: adminEmail,
       username: adminUsername,
       password: hashPassword,
+      role: 'ADMIN',
       status: true,
+      profile: {
+        update: {
+          id: 1,
+          fullname: 'ADMINISTRATOR',
+        },
+      },
     },
     create: {
       email: adminEmail,
       username: adminUsername,
       password: hashPassword,
+      role: 'ADMIN',
       status: true,
+      profile: {
+        create: {
+          id: 1,
+          fullname: 'ADMINISTRATOR',
+        },
+      },
     },
   });
 

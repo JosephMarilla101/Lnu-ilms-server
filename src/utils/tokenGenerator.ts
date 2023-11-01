@@ -1,9 +1,10 @@
 import jwt from 'jsonwebtoken';
+import { UserRoles } from '@prisma/client';
 
 export type UserType = {
   id: number;
   email: string;
-  role: 'ADMIN' | 'LIBRARIAN' | 'STUDENT';
+  role: UserRoles;
   status: boolean;
 };
 

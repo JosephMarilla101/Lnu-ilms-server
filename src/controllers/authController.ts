@@ -4,7 +4,6 @@ import z from 'zod';
 import errHandler from '../middlewares/errorHandler';
 import * as authServices from '../services/authServices';
 import tokenGenerator from '../utils/tokenGenerator';
-import customeError from '../utils/customError';
 
 export const adminLogin = async (req: Request, res: Response) => {
   try {
@@ -52,7 +51,7 @@ export const librarianLogin = async (req: Request, res: Response) => {
   }
 };
 
-export const studentLogin = async (req: Request, res: Response) => {
+export const userLogin = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
@@ -65,7 +64,7 @@ export const studentLogin = async (req: Request, res: Response) => {
 
     const validated = Schema.parse({ email, password });
 
-    const user = await authServices.studentLogin(validated);
+    const user = await authServices.userLogin(validated);
 
     const token = tokenGenerator(user);
 
@@ -80,27 +79,11 @@ export const authenticateUser = async (
   res: Response
 ) => {
   try {
-    const user = req.user;
+    const id = req.user?.id as number;
 
-    if (user?.role === 'ADMIN') {
-      const auth = await authServices.findAdmin(user.id);
+    const auth = await authServices.findUser(id);
 
-      return res.status(200).json(auth);
-    }
-
-    if (user?.role === 'LIBRARIAN') {
-      const auth = await authServices.findLibrarian(user.id);
-
-      return res.status(200).json(auth);
-    }
-
-    if (user?.role === 'STUDENT') {
-      const auth = await authServices.findStudent(user.id);
-
-      return res.status(200).json(auth);
-    }
-
-    throw new customeError(404, 'Unauthorize.');
+    return res.status(200).json(auth);
   } catch (error) {
     errHandler(error, res);
   }

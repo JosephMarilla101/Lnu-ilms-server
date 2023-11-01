@@ -19,13 +19,13 @@ export const totalUnreturnedBooks = async (): Promise<number> => {
 };
 
 export const myTotalUnreturnedBooks = async (
-  studentId: number
+  userId: number
 ): Promise<number> => {
   const total = await prisma.borrowedBook.count({
     where: {
       isReturn: false,
       AND: {
-        studentId,
+        userId,
       },
     },
   });
@@ -44,13 +44,13 @@ export const totalRequestedBooks = async (): Promise<number> => {
 };
 
 export const myTotalRequestedBooks = async (
-  studentId: number
+  userId: number
 ): Promise<number> => {
   const total = await prisma.borrowRequest.count({
     where: {
       isApproved: false,
       AND: {
-        studentId,
+        userId,
       },
     },
   });
@@ -64,12 +64,10 @@ export const totalBorrowedBooks = async (): Promise<number> => {
   return total;
 };
 
-export const myTotalBorrowedBooks = async (
-  studentId: number
-): Promise<number> => {
+export const myTotalBorrowedBooks = async (userId: number): Promise<number> => {
   const total = await prisma.borrowedBook.count({
     where: {
-      studentId,
+      userId,
     },
   });
 
@@ -97,13 +95,21 @@ export const totalCatoegories = async (): Promise<number> => {
 };
 
 export const totalStudents = async (): Promise<number> => {
-  const total = await prisma.student.count();
+  const total = await prisma.user.count({
+    where: {
+      role: 'STUDENT',
+    },
+  });
 
   return total;
 };
 
 export const totalLibrarians = async (): Promise<number> => {
-  const total = await prisma.librarian.count();
+  const total = await prisma.user.count({
+    where: {
+      role: 'LIBRARIAN',
+    },
+  });
 
   return total;
 };
