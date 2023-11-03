@@ -1,6 +1,8 @@
 import express from 'express';
 import jwtVerifier from '../middlewares/jwtVerifier';
 import {
+  topBookCategories,
+  userBorrowCount,
   totalBooks,
   totalUnreturnedBooks,
   myTotalUnreturnedBooks,
@@ -20,6 +22,8 @@ const dashboardRouter = express.Router();
 dashboardRouter.use(jwtVerifier);
 dashboardRouter.use(statusVerifier);
 
+dashboardRouter.get('/top_categories', topBookCategories);
+dashboardRouter.get('/user_borrow_count', userBorrowCount);
 dashboardRouter.get('/total_books', totalBooks);
 dashboardRouter.get('/total_requested_books', totalRequestedBooks);
 dashboardRouter.get('/my_total_requested_books', myTotalRequestedBooks);
