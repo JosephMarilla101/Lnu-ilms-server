@@ -65,11 +65,22 @@ export const updateBook = async ({
     where: {
       id,
     },
+    include: {
+      category: true,
+    },
   });
 
   if (book.isbn !== isbn) {
     await checkUniqueIsbn(isbn);
   }
+
+  // Get the IDs of the current book's categories
+  const currentCategoryIds = book.category.map((category) => category.id);
+
+  // Calculate the IDs to disconnect (categories not in the new list)
+  const categoriesToDisconnect = currentCategoryIds.filter(
+    (categoryId) => !categoryIds.includes(categoryId)
+  );
 
   const updatedBook = await prisma.book.update({
     where: {
@@ -83,6 +94,9 @@ export const updateBook = async ({
       authorId,
       copies,
       category: {
+        disconnect: categoriesToDisconnect.map((categoryId) => ({
+          id: categoryId,
+        })),
         connect: categoryIds.map((categoryId) => ({
           id: categoryId,
         })),

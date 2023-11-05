@@ -534,7 +534,7 @@ export const getAllGraduates = async () => {
     return {
       id: data.id,
       email: data.email,
-      studentId: data.profile?.id.toString(), //convert to string in order to be searchable in data table
+      graduateId: data.profile?.id.toString(), //convert to string in order to be searchable in data table
       fullname: data?.profile?.fullname,
       profilePhoto: data?.profile?.profilePhoto,
       profilePhotoId: data?.profile?.profilePhoto,
@@ -562,7 +562,7 @@ export const getAllTeachers = async () => {
     return {
       id: data.id,
       email: data.email,
-      studentId: data.profile?.id.toString(), //convert to string in order to be searchable in data table
+      employeeId: data.profile?.id.toString(), //convert to string in order to be searchable in data table
       fullname: data?.profile?.fullname,
       profilePhoto: data?.profile?.profilePhoto,
       profilePhotoId: data?.profile?.profilePhoto,
