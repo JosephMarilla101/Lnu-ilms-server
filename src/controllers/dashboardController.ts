@@ -30,6 +30,19 @@ export const userBorrowCount = async (
   }
 };
 
+export const userCountData = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const data = await dashboardServicies.userCountData();
+
+    return res.status(200).json(data);
+  } catch (error) {
+    errHandler(error, res);
+  }
+};
+
 export const totalBooks = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const total = await dashboardServicies.totalBooks();
@@ -189,6 +202,32 @@ export const totalStudents = async (
 ) => {
   try {
     const total = await dashboardServicies.totalStudents();
+
+    return res.status(200).json(total);
+  } catch (error) {
+    errHandler(error, res);
+  }
+};
+
+export const totalGraduates = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const total = await dashboardServicies.totalGraduates();
+
+    return res.status(200).json(total);
+  } catch (error) {
+    errHandler(error, res);
+  }
+};
+
+export const totalTeachers = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const total = await dashboardServicies.totalTeachers();
 
     return res.status(200).json(total);
   } catch (error) {

@@ -18,6 +18,11 @@ export const topBookCategories = async () => {
               },
             },
           },
+          category: {
+            some: {
+              isDeleted: false,
+            },
+          },
         },
         select: {
           borrowedBy: true,
@@ -58,6 +63,24 @@ export const userBorrowCount = async () => {
           createdAt: {
             gte: sevenDaysAgo, // Filter books borrowed within the last 7 days
           },
+        },
+      });
+
+      return { name: role, count };
+    })
+  );
+
+  return dataset;
+};
+
+export const userCountData = async () => {
+  const roles = ['STUDENT', 'GRADUATE', 'TEACHER', 'LIBRARIAN'] as const;
+
+  const dataset = await Promise.all(
+    roles.map(async (role) => {
+      const count = await prisma.user.count({
+        where: {
+          role,
         },
       });
 
@@ -164,6 +187,26 @@ export const totalStudents = async (): Promise<number> => {
   const total = await prisma.user.count({
     where: {
       role: 'STUDENT',
+    },
+  });
+
+  return total;
+};
+
+export const totalGraduates = async (): Promise<number> => {
+  const total = await prisma.user.count({
+    where: {
+      role: 'GRADUATE',
+    },
+  });
+
+  return total;
+};
+
+export const totalTeachers = async (): Promise<number> => {
+  const total = await prisma.user.count({
+    where: {
+      role: 'TEACHER',
     },
   });
 
