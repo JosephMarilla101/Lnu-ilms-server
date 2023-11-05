@@ -474,20 +474,24 @@ export const updateProfilePhoto = async ({
   profilePhoto: string;
   profilePhotoId: string;
 }) => {
-  const student = await prisma.profile.update({
+  const user = await prisma.user.update({
     where: {
-      userId: id,
+      id,
     },
     data: {
-      profilePhoto,
-      profilePhotoId,
+      profile: {
+        update: {
+          profilePhoto,
+          profilePhotoId,
+        },
+      },
     },
     include: {
-      user: true,
+      profile: true,
     },
   });
 
-  return student;
+  return user;
 };
 
 export const getAllStudents = async () => {
