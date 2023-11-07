@@ -256,7 +256,7 @@ export const getAllIssuedBooks = async () => {
       id: data.id,
       isbn: data.book.isbn.toString(), //convert to string in order to be searchable in data table
       bookName: data.book.name,
-      studentId: data.user.profile?.id, //convert to string in order to be searchable in data table
+      borrowerId: data.user.profile?.id, //convert to string in order to be searchable in data table
       dueDate: data.dueDate,
       returnedDate: data.returnedDate,
       isReturn: data.isReturn,
