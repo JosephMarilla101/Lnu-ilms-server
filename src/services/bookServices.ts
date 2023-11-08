@@ -368,7 +368,16 @@ export const getRequestedBook = async (userId: number) => {
       },
     },
     select: {
-      book: true,
+      book: {
+        select: {
+          id: true,
+          isbn: true,
+          name: true,
+          bookCover: true,
+          copies: true,
+          author: true,
+        },
+      },
       isApproved: true,
       requestDate: true,
       updatedAt: true,
@@ -387,7 +396,16 @@ export const getUnreturnedBook = async (userId: number) => {
       },
     },
     select: {
-      book: true,
+      book: {
+        select: {
+          id: true,
+          isbn: true,
+          name: true,
+          bookCover: true,
+          copies: true,
+          author: true,
+        },
+      },
       isReturn: true,
       dueDate: true,
     },
