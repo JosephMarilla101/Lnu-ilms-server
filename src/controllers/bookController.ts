@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import { parseISO, isPast, isToday } from 'date-fns';
 import { AuthenticatedRequest } from '../middlewares/jwtVerifier';
+import { RequestType } from '@prisma/client';
 import z from 'zod';
 import * as bookServices from '../services/bookServices';
 import errHandler from '../middlewares/errorHandler';
@@ -187,41 +188,41 @@ export const getBookLateFee = async (
   }
 };
 
-export const createBorrowedBook = async (
-  req: AuthenticatedRequest,
-  res: Response
-) => {
-  try {
-    const { dueDate, requestId } = req.body;
+// export const createBorrowedBook = async (
+//   req: AuthenticatedRequest,
+//   res: Response
+// ) => {
+//   try {
+//     const { dueDate, requestId } = req.body;
 
-    const Schema = z.object({
-      dueDate: z.string({
-        required_error: 'Book due date is required.',
-      }),
-      requestId: z.number({
-        required_error: 'Book request ID is required.',
-        invalid_type_error: 'Book request ID is not a valid ID.',
-      }),
-    });
+//     const Schema = z.object({
+//       dueDate: z.string({
+//         required_error: 'Book due date is required.',
+//       }),
+//       requestId: z.number({
+//         required_error: 'Book request ID is required.',
+//         invalid_type_error: 'Book request ID is not a valid ID.',
+//       }),
+//     });
 
-    const parsedDate = parseISO(dueDate);
+//     const parsedDate = parseISO(dueDate);
 
-    if (isPast(parsedDate) || isToday(parsedDate)) {
-      throw new customError(403, "Cannot use past or today's date.");
-    }
+//     if (isPast(parsedDate) || isToday(parsedDate)) {
+//       throw new customError(403, "Cannot use past or today's date.");
+//     }
 
-    const validated = Schema.parse({ dueDate, requestId });
+//     const validated = Schema.parse({ dueDate, requestId });
 
-    const response = await bookServices.createBorrowedBook({
-      dueDate: parsedDate,
-      requestId: validated.requestId,
-    });
+//     const response = await bookServices.createBorrowedBook({
+//       dueDate: parsedDate,
+//       requestId: validated.requestId,
+//     });
 
-    return res.status(200).json(response);
-  } catch (error) {
-    errHandler(error, res);
-  }
-};
+//     return res.status(200).json(response);
+//   } catch (error) {
+//     errHandler(error, res);
+//   }
+// };
 
 export const deleteBorrowedBook = async (
   req: AuthenticatedRequest,
@@ -382,6 +383,105 @@ export const requestBook = async (req: AuthenticatedRequest, res: Response) => {
       });
 
     const request = await bookServices.requestBook(validated);
+
+    return res.status(200).json(request);
+  } catch (error) {
+    errHandler(error, res);
+  }
+};
+
+export const releaseBook = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id, bookId, userId } = req.body;
+
+    const Schema = z.object({
+      id: z.number({
+        required_error: 'Request ID is required.',
+        invalid_type_error: 'Request ID is not a valid ID.',
+      }),
+      bookId: z.number({
+        required_error: 'Book ID is required.',
+        invalid_type_error: 'Book ID is not a valid ID.',
+      }),
+      userId: z.number({
+        required_error: 'User ID is required.',
+        invalid_type_error: 'User ID is not a valid ID.',
+      }),
+    });
+
+    const validated = Schema.parse({ id, bookId, userId });
+
+    const request = await bookServices.releaseBook(validated);
+
+    return res.status(200).json(request);
+  } catch (error) {
+    errHandler(error, res);
+  }
+};
+
+export const changeRequestStatus = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const { id, bookId, userId, status, dueDate } = req.body;
+
+    const Schema = z.object({
+      id: z.number({
+        required_error: 'Book ID is required.',
+        invalid_type_error: 'Book ID is not a valid ID.',
+      }),
+      bookId: z.number({
+        required_error: 'Book ID is required.',
+        invalid_type_error: 'Book ID is not a valid ID.',
+      }),
+      userId: z.number({
+        required_error: 'User ID is required.',
+        invalid_type_error: 'User ID is not a valid ID.',
+      }),
+      status: z.nativeEnum(RequestType, {
+        required_error: 'Status is required.',
+        invalid_type_error: 'Invalid request status.',
+      }),
+      dueDate: z
+        .string({
+          required_error: 'Book due date is required.',
+        })
+        .optional()
+        .nullable(),
+    });
+
+    const validated = Schema.parse({ id, bookId, userId, status, dueDate });
+
+    const request = await bookServices.changeRequestStatus(validated);
+
+    return res.status(200).json(request);
+  } catch (error) {
+    errHandler(error, res);
+  }
+};
+
+export const disapproveRequest = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const { bookId, userId } = req.body;
+
+    const Schema = z.object({
+      bookId: z.number({
+        required_error: 'Book ID is required.',
+        invalid_type_error: 'Book ID is not a valid ID.',
+      }),
+      userId: z.number({
+        required_error: 'User ID is required.',
+        invalid_type_error: 'User ID is not a valid ID.',
+      }),
+    });
+
+    const validated = Schema.parse({ bookId, userId });
+
+    const request = await bookServices.disapproveRequest(validated);
 
     return res.status(200).json(request);
   } catch (error) {

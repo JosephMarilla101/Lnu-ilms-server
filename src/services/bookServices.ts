@@ -1,4 +1,4 @@
-import { PrismaClient, BorrowedBookFee } from '@prisma/client';
+import { PrismaClient, BorrowedBookFee, RequestType } from '@prisma/client';
 import { differenceInDays, isAfter } from 'date-fns';
 import customeError from '../utils/customError';
 
@@ -168,59 +168,6 @@ export const deleteIssuedBook = async (issuedId: number) => {
   return issuedBook;
 };
 
-export const createBorrowedBook = async ({
-  dueDate,
-  requestId,
-}: {
-  dueDate: Date;
-  requestId: number;
-}) => {
-  const request = await prisma.borrowRequest.findFirstOrThrow({
-    where: {
-      id: requestId,
-    },
-  });
-
-  const book = await prisma.book.findUniqueOrThrow({
-    where: {
-      id: request.bookId,
-    },
-  });
-
-  if (book?.copies <= 0)
-    throw new customeError(403, 'No copies of the selected book is available.');
-
-  await prisma.book.update({
-    where: {
-      id: book.id,
-    },
-    data: {
-      copies: {
-        decrement: 1,
-      },
-    },
-  });
-
-  await prisma.borrowRequest.update({
-    where: {
-      id: request.id,
-    },
-    data: {
-      isApproved: true,
-    },
-  });
-
-  const borrowedBook = await prisma.borrowedBook.create({
-    data: {
-      userId: request.userId,
-      bookId: request.bookId,
-      dueDate,
-    },
-  });
-
-  return borrowedBook;
-};
-
 export const getAllIssuedBooks = async () => {
   const books = await prisma.borrowedBook.findMany({
     select: {
@@ -291,11 +238,11 @@ export const getALLRequestedBooks = async () => {
           },
         },
       },
-      isApproved: true,
+      status: true,
       requestDate: true,
     },
     orderBy: {
-      isApproved: 'asc',
+      createdAt: 'desc',
     },
   });
 
@@ -309,7 +256,7 @@ export const getALLRequestedBooks = async () => {
       isbn: data.book.isbn.toString(), //convert to string in order to be searchable in data table
       studentId: data.user.profile?.id.toString(), //convert to string in order to be searchable in data table
       borrowerId: data.userId,
-      isApproved: data.isApproved,
+      status: data.status,
       requestDate: data.requestDate,
     };
   });
@@ -364,10 +311,13 @@ export const getRequestedBook = async (userId: number) => {
     where: {
       userId,
       AND: {
-        isApproved: false,
+        status: {
+          in: ['PENDING', 'FORPICKUP'],
+        },
       },
     },
     select: {
+      id: true,
       book: {
         select: {
           id: true,
@@ -378,9 +328,12 @@ export const getRequestedBook = async (userId: number) => {
           author: true,
         },
       },
-      isApproved: true,
+      status: true,
       requestDate: true,
       updatedAt: true,
+    },
+    orderBy: {
+      updatedAt: 'desc',
     },
   });
 
@@ -484,14 +437,145 @@ export const requestBook = async ({
   return request;
 };
 
-export const cancelRequest = async ({
+export const releaseBook = async ({
+  id,
+  bookId,
+  userId,
+}: {
+  id: number;
+  bookId: number;
+  userId: number;
+}) => {
+  const borrowRequest = await prisma.borrowRequest.findFirst({
+    where: {
+      userId,
+      AND: {
+        bookId,
+        AND: {
+          id,
+        },
+      },
+    },
+  });
+
+  if (!borrowRequest)
+    throw new customeError(404, 'Book request cannot be found.');
+
+  if (!borrowRequest.returnedDate)
+    throw new customeError(404, 'Please specify book returned date.');
+
+  const createdBorrowedBook = await createBorrowedBook({
+    dueDate: borrowRequest.returnedDate,
+    requestId: borrowRequest.id,
+  });
+
+  if (!createdBorrowedBook) throw new customeError(403, 'Error issuing book.');
+
+  const request = await prisma.borrowRequest.update({
+    where: {
+      id: borrowRequest.id,
+    },
+    data: {
+      status: 'RELEASED',
+    },
+  });
+
+  return request;
+};
+
+export const changeRequestStatus = async ({
+  id,
+  bookId,
+  userId,
+  status,
+  dueDate,
+}: {
+  id: number;
+  bookId: number;
+  userId: number;
+  status: RequestType;
+  dueDate?: Date | string | null;
+}) => {
+  const borrowRequest = await prisma.borrowRequest.findFirst({
+    where: {
+      userId,
+      AND: {
+        bookId,
+        AND: {
+          id,
+        },
+      },
+    },
+  });
+
+  if (!borrowRequest)
+    throw new customeError(404, 'Book request cannot be found.');
+
+  const request = await prisma.borrowRequest.update({
+    where: {
+      id: borrowRequest.id,
+    },
+    data: {
+      status,
+      returnedDate: dueDate,
+    },
+  });
+
+  return request;
+};
+
+const createBorrowedBook = async ({
+  dueDate,
+  requestId,
+}: {
+  dueDate?: Date | string | null;
+  requestId: number;
+}) => {
+  const request = await prisma.borrowRequest.findFirstOrThrow({
+    where: {
+      id: requestId,
+    },
+  });
+
+  const book = await prisma.book.findUniqueOrThrow({
+    where: {
+      id: request.bookId,
+    },
+  });
+
+  if (book?.copies <= 0)
+    throw new customeError(403, 'No copies of the selected book is available.');
+
+  await prisma.book.update({
+    where: {
+      id: book.id,
+    },
+    data: {
+      copies: {
+        decrement: 1,
+      },
+    },
+  });
+
+  const borrowedBook = await prisma.borrowedBook.create({
+    data: {
+      userId: request.userId,
+      bookId: request.bookId,
+      dueDate: dueDate ?? '',
+    },
+  });
+
+  return borrowedBook;
+};
+
+export const disapproveRequest = async ({
   bookId,
   userId,
 }: {
   bookId: number;
   userId: number;
 }) => {
-  const request = await prisma.borrowRequest.findFirst({
+  const borrowRequest = await prisma.borrowRequest.findFirst({
     where: {
       userId,
       AND: {
@@ -500,11 +584,77 @@ export const cancelRequest = async ({
     },
   });
 
-  if (!request) throw new customeError(404, 'Book request cannot be found.');
+  if (!borrowRequest)
+    throw new customeError(404, 'Book request cannot be found.');
 
-  await prisma.borrowRequest.delete({
+  const request = await prisma.borrowRequest.update({
     where: {
-      id: request.id,
+      id: borrowRequest.id,
+    },
+    data: {
+      status: 'DISAPPROVED',
+    },
+  });
+
+  return request;
+};
+
+export const markAsForPickupRequest = async ({
+  bookId,
+  userId,
+}: {
+  bookId: number;
+  userId: number;
+}) => {
+  const borrowRequest = await prisma.borrowRequest.findFirst({
+    where: {
+      userId,
+      AND: {
+        bookId,
+      },
+    },
+  });
+
+  if (!borrowRequest)
+    throw new customeError(404, 'Book request cannot be found.');
+
+  const request = await prisma.borrowRequest.update({
+    where: {
+      id: borrowRequest.id,
+    },
+    data: {
+      status: 'FORPICKUP',
+    },
+  });
+
+  return request;
+};
+
+export const cancelRequest = async ({
+  bookId,
+  userId,
+}: {
+  bookId: number;
+  userId: number;
+}) => {
+  const borrowRequest = await prisma.borrowRequest.findFirst({
+    where: {
+      userId,
+      AND: {
+        bookId,
+      },
+    },
+  });
+
+  if (!borrowRequest)
+    throw new customeError(404, 'Book request cannot be found.');
+
+  const request = await prisma.borrowRequest.update({
+    where: {
+      id: borrowRequest.id,
+    },
+    data: {
+      status: 'CANCELLED',
     },
   });
 
@@ -526,16 +676,18 @@ export const canBorrow = async (userId: number): Promise<boolean> => {
 };
 
 export const canRequest = async (userId: number): Promise<boolean> => {
-  const hasRequested = await prisma.borrowRequest.findFirst({
+  const request = await prisma.borrowRequest.findFirst({
     where: {
       userId,
       AND: {
-        isApproved: false,
+        status: {
+          in: ['PENDING', 'FORPICKUP'],
+        },
       },
     },
   });
 
-  if (hasRequested) return false;
+  if (request) return false;
   else return true;
 };
 
