@@ -6,8 +6,8 @@ import {
   getBook,
   getBookList,
   requestBook,
-  cancelRequest,
-  createBorrowedBook,
+  changeRequestStatus,
+  releaseBook,
   getRequestedBook,
   getALLRequestedBooks,
   getAllIssuedBooks,
@@ -33,11 +33,11 @@ bookRouter.get('/list', getBookList);
 bookRouter.get('/late_fee', getBookLateFee);
 bookRouter.post('/', createBook);
 bookRouter.put('/', updateBook);
+bookRouter.put('/change_request_status', changeRequestStatus);
 bookRouter.post('/request', requestBook);
-bookRouter.post('/borrow_book', createBorrowedBook);
+bookRouter.post('/release_book', releaseBook);
 bookRouter.put('/borrowed/return', returnBorrowedBook);
 bookRouter.delete('/', deleteBook);
-bookRouter.delete('/cancel_request', cancelRequest);
 bookRouter.delete('/issued_book', deleteBorrowedBook);
 
 export default bookRouter;
