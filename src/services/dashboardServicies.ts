@@ -162,8 +162,9 @@ export const myTotalUnreturnedBooks = async (
 export const totalRequestedBooks = async (): Promise<number> => {
   const total = await prisma.borrowRequest.count({
     where: {
-      status: {
-        not: 'RELEASED',
+      status: 'PENDING',
+      AND: {
+        isCancelled: false,
       },
     },
   });
@@ -176,12 +177,12 @@ export const myTotalRequestedBooks = async (
 ): Promise<number> => {
   const total = await prisma.borrowRequest.count({
     where: {
-      status: {
-        not: 'RELEASED',
-      },
-      AND: {
-        userId,
-      },
+      NOT: [
+        { status: 'RELEASED' },
+        { isCancelled: true },
+        { status: 'DISAPPROVED' },
+      ],
+      userId,
     },
   });
 

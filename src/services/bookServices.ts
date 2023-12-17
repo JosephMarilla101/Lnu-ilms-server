@@ -530,6 +530,23 @@ export const changeRequestStatus = async ({
   if (!borrowRequest)
     throw new customeError(404, 'Book request cannot be found.');
 
+  // validation
+  if (
+    borrowRequest.status === 'RELEASED' ||
+    borrowRequest.status === 'DISAPPROVED'
+  )
+    throw new customeError(
+      403,
+      'Cannot perform action on current request status.'
+    );
+
+  // validate change status to prevent jumping from pending to released
+  if (borrowRequest.status === 'PENDING' && status === 'RELEASED')
+    throw new customeError(
+      403,
+      'Cannot perform action on current request status.'
+    );
+
   const request = await prisma.borrowRequest.update({
     where: {
       id: borrowRequest.id,
