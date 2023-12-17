@@ -239,6 +239,7 @@ export const getALLRequestedBooks = async () => {
         },
       },
       status: true,
+      isCancelled: true,
       requestDate: true,
     },
     orderBy: {
@@ -257,6 +258,7 @@ export const getALLRequestedBooks = async () => {
       studentId: data.user.profile?.id.toString(), //convert to string in order to be searchable in data table
       borrowerId: data.userId,
       status: data.status,
+      isCancelled: data.isCancelled,
       requestDate: data.requestDate,
     };
   });
@@ -312,7 +314,10 @@ export const getRequestedBook = async (userId: number) => {
       userId,
       AND: {
         status: {
-          in: ['PENDING', 'FORPICKUP'],
+          in: ['PENDING', 'FORPICKUP', 'DISAPPROVED'],
+        },
+        AND: {
+          isCancelled: false,
         },
       },
     },
@@ -329,6 +334,7 @@ export const getRequestedBook = async (userId: number) => {
         },
       },
       status: true,
+      isCancelled: true,
       requestDate: true,
       updatedAt: true,
     },
@@ -426,6 +432,19 @@ export const requestBook = async ({
 
   if (book.copies <= 0)
     throw new customeError(403, 'No copies of the selected book is available.');
+
+  // if user request a new book update all DISAPPROVED book to isCancelled
+  await prisma.borrowRequest.updateMany({
+    where: {
+      userId,
+      AND: {
+        status: 'DISAPPROVED',
+      },
+    },
+    data: {
+      isCancelled: true,
+    },
+  });
 
   const request = await prisma.borrowRequest.create({
     data: {
@@ -630,19 +649,10 @@ export const markAsForPickupRequest = async ({
   return request;
 };
 
-export const cancelRequest = async ({
-  bookId,
-  userId,
-}: {
-  bookId: number;
-  userId: number;
-}) => {
+export const cancelRequest = async ({ requestId }: { requestId: number }) => {
   const borrowRequest = await prisma.borrowRequest.findFirst({
     where: {
-      userId,
-      AND: {
-        bookId,
-      },
+      id: requestId,
     },
   });
 
@@ -654,7 +664,7 @@ export const cancelRequest = async ({
       id: borrowRequest.id,
     },
     data: {
-      status: 'CANCELLED',
+      isCancelled: true,
     },
   });
 
@@ -679,11 +689,18 @@ export const canRequest = async (userId: number): Promise<boolean> => {
   const request = await prisma.borrowRequest.findFirst({
     where: {
       userId,
-      AND: {
-        status: {
-          in: ['PENDING', 'FORPICKUP'],
+      AND: [
+        {
+          status: {
+            in: ['PENDING', 'FORPICKUP'],
+          },
         },
-      },
+        {
+          NOT: {
+            isCancelled: true,
+          },
+        },
+      ],
     },
   });
 

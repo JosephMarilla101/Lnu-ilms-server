@@ -494,20 +494,16 @@ export const cancelRequest = async (
   res: Response
 ) => {
   try {
-    const { bookId, userId } = req.body;
+    const { requestId } = req.body;
 
     const Schema = z.object({
-      bookId: z.number({
-        required_error: 'Book ID is required.',
-        invalid_type_error: 'Book ID is not a valid ID.',
-      }),
-      userId: z.number({
-        required_error: 'User ID is required.',
-        invalid_type_error: 'User ID is not a valid ID.',
+      requestId: z.number({
+        required_error: 'Request ID is required.',
+        invalid_type_error: 'Request ID is not a valid ID.',
       }),
     });
 
-    const validated = Schema.parse({ bookId, userId });
+    const validated = Schema.parse({ requestId });
 
     const request = await bookServices.cancelRequest(validated);
 
