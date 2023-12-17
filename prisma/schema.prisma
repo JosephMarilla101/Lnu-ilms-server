@@ -21,7 +21,6 @@ enum UserRoles {
 enum RequestType {
   PENDING
   DISAPPROVED
-  CANCELLED
   FORPICKUP
   RELEASED
 }
@@ -102,6 +101,7 @@ model BorrowRequest {
   requestDate  DateTime    @default(now())
   returnedDate DateTime?
   status       RequestType @default(PENDING)
+  isCancelled  Boolean     @default(false)
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 
