@@ -7,6 +7,9 @@ export const topBookCategories = async () => {
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
   const categories = await prisma.category.findMany({
+    where: {
+      isDeleted: false,
+    },
     select: {
       name: true,
       books: {
