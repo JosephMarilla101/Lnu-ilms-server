@@ -11,7 +11,7 @@ import {
   releaseBook,
   getRequestedBook,
   getALLRequestedBooks,
-  getAllIssuedBooks,
+  getIssuedBooks,
   getBookLateFee,
   getUnreturnedBook,
   returnBorrowedBook,
@@ -29,7 +29,7 @@ bookRouter.get('/', getBook);
 bookRouter.get('/requested/all', getALLRequestedBooks);
 bookRouter.get('/requested', getRequestedBook);
 bookRouter.get('/unreturned', getUnreturnedBook);
-bookRouter.get('/issued/all', getAllIssuedBooks);
+bookRouter.get('/issued/all', getIssuedBooks);
 bookRouter.get('/list', getBookList);
 bookRouter.get('/late_fee', getBookLateFee);
 bookRouter.post('/', createBook);

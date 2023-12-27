@@ -5,6 +5,7 @@ import z from 'zod';
 import * as bookServices from '../services/bookServices';
 import errHandler from '../middlewares/errorHandler';
 import customeError from '../utils/customError';
+import { isValidDateString } from '../utils/lib';
 
 export const createBook = async (req: AuthenticatedRequest, res: Response) => {
   try {
@@ -299,12 +300,34 @@ export const returnBorrowedBook = async (
   }
 };
 
-export const getAllIssuedBooks = async (
+export const getIssuedBooks = async (
   req: AuthenticatedRequest,
   res: Response
 ) => {
   try {
-    const issuedBooks = await bookServices.getAllIssuedBooks();
+    const isReturn = req.query.isReturn;
+    const startDate = req.query.startDate;
+    const endDate = req.query.endDate;
+
+    const Schema = z.object({
+      isReturn: z.string().transform((value) => value === 'true'),
+      startDate: z
+        .string()
+        .refine((value) => isValidDateString(value), {
+          message: 'Invalid start date filter',
+        })
+        .transform((value) => new Date(value).toISOString()),
+      endDate: z
+        .string()
+        .refine((value) => isValidDateString(value), {
+          message: 'Invalid end date filter',
+        })
+        .transform((value) => new Date(value).toISOString()),
+    });
+
+    const validated = Schema.parse({ isReturn, startDate, endDate });
+
+    const issuedBooks = await bookServices.getIssuedBooks(validated);
 
     return res.status(200).json(issuedBooks);
   } catch (error) {
