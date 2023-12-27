@@ -1,12 +1,10 @@
 import { Response } from 'express';
-import { parseISO, isPast, isToday } from 'date-fns';
 import { AuthenticatedRequest } from '../middlewares/jwtVerifier';
 import { RequestType } from '@prisma/client';
 import z from 'zod';
 import * as bookServices from '../services/bookServices';
 import errHandler from '../middlewares/errorHandler';
 import customeError from '../utils/customError';
-import customError from '../utils/customError';
 
 export const createBook = async (req: AuthenticatedRequest, res: Response) => {
   try {
@@ -187,42 +185,6 @@ export const getBookLateFee = async (
     errHandler(error, res);
   }
 };
-
-// export const createBorrowedBook = async (
-//   req: AuthenticatedRequest,
-//   res: Response
-// ) => {
-//   try {
-//     const { dueDate, requestId } = req.body;
-
-//     const Schema = z.object({
-//       dueDate: z.string({
-//         required_error: 'Book due date is required.',
-//       }),
-//       requestId: z.number({
-//         required_error: 'Book request ID is required.',
-//         invalid_type_error: 'Book request ID is not a valid ID.',
-//       }),
-//     });
-
-//     const parsedDate = parseISO(dueDate);
-
-//     if (isPast(parsedDate) || isToday(parsedDate)) {
-//       throw new customError(403, "Cannot use past or today's date.");
-//     }
-
-//     const validated = Schema.parse({ dueDate, requestId });
-
-//     const response = await bookServices.createBorrowedBook({
-//       dueDate: parsedDate,
-//       requestId: validated.requestId,
-//     });
-
-//     return res.status(200).json(response);
-//   } catch (error) {
-//     errHandler(error, res);
-//   }
-// };
 
 export const deleteBorrowedBook = async (
   req: AuthenticatedRequest,

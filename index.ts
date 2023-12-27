@@ -7,6 +7,7 @@ import userRoutes from './src/routes/userRoutes';
 import authorRoutes from './src/routes/authorRoutes';
 import categoryRoutes from './src/routes/categoryRoutes';
 import bookRoutes from './src/routes/bookRoutes';
+import bookRequestRoutes from './src/routes/bookRequestRoutes';
 import dashboardRoutes from './src/routes/dashboardRoutes';
 import { PrismaClient } from '@prisma/client';
 
@@ -58,6 +59,7 @@ app.use('/api/user', userRoutes);
 app.use('/api/author', authorRoutes);
 app.use('/api/category', categoryRoutes);
 app.use('/api/book', bookRoutes);
+app.use('/api/request', bookRequestRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
 app.all('*', (req, res) => {
