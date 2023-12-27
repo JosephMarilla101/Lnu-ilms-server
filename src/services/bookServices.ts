@@ -168,8 +168,23 @@ export const deleteIssuedBook = async (issuedId: number) => {
   return issuedBook;
 };
 
-export const getAllIssuedBooks = async () => {
+export const getIssuedBooks = async ({
+  isReturn,
+  startDate,
+  endDate,
+}: {
+  isReturn: boolean;
+  startDate: string;
+  endDate: string;
+}) => {
   const books = await prisma.borrowedBook.findMany({
+    where: {
+      isReturn,
+      createdAt: {
+        gte: startDate,
+        lte: endDate,
+      },
+    },
     select: {
       id: true,
       book: {
@@ -194,7 +209,7 @@ export const getAllIssuedBooks = async () => {
       lateFee: true,
     },
     orderBy: {
-      isReturn: 'asc',
+      updatedAt: 'desc',
     },
   });
 
