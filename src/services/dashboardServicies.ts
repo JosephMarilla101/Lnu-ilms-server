@@ -1,6 +1,43 @@
 import { PrismaClient } from '@prisma/client';
-
 const prisma = new PrismaClient();
+
+export const getBorrowedBookCountByMonth = async () => {
+  const months = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+
+  const data = await Promise.all(
+    months.map(async (name, index) => {
+      const month = index + 1;
+      const currentYear = new Date().getFullYear();
+
+      const startDate = new Date(currentYear, month - 1, 1);
+      const endDate = new Date(currentYear, month, 0);
+      const count = await prisma.borrowRequest.count({
+        where: {
+          createdAt: {
+            gte: startDate,
+            lte: endDate,
+          },
+        },
+      });
+      return { name, count };
+    })
+  );
+
+  return data;
+};
 
 export const topBookCategories = async () => {
   const sevenDaysAgo = new Date();
@@ -48,43 +85,6 @@ export const topBookCategories = async () => {
 
   // Return the top 10 most borrowed categories
   return categoryBorrows.slice(0, 5);
-};
-
-export const topBorrower = async () => {
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-  const categories = await prisma.profile.findMany({
-    select: {
-      department: true,
-      user: {
-        select: {
-          borrowedBooks: {
-            where: {
-              createdAt: {
-                gte: sevenDaysAgo,
-              },
-            },
-          },
-        },
-      },
-    },
-  });
-
-  // Calculate the total borrows for each category
-  // const categoryBorrows = categories.map((category) => {
-  //   const totalBorrows = category.books.reduce(
-  //     (sum, book) => sum + book.borrowedBy.length,
-  //     0
-  //   );
-  //   return { name: category.name, count: totalBorrows };
-  // });
-
-  // Sort categories by total borrows in descending order
-  // categoryBorrows.sort((a, b) => b.count - a.count);
-
-  // Return the top 10 most borrowed categories
-  // return categoryBorrows.slice(0, 5);
 };
 
 export const userBorrowCount = async () => {

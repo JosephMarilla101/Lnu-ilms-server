@@ -4,6 +4,19 @@ import z from 'zod';
 import errHandler from '../middlewares/errorHandler';
 import * as dashboardServicies from '../services/dashboardServicies';
 
+export const getBorrowedBookCountByMonth = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const data = await dashboardServicies.getBorrowedBookCountByMonth();
+
+    return res.status(200).json(data);
+  } catch (error) {
+    errHandler(error, res);
+  }
+};
+
 export const topBookCategories = async (
   req: AuthenticatedRequest,
   res: Response
