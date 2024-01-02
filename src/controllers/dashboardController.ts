@@ -9,7 +9,22 @@ export const getBorrowedBookCountByMonth = async (
   res: Response
 ) => {
   try {
-    const data = await dashboardServicies.getBorrowedBookCountByMonth();
+    const year = req.query.year;
+
+    const Schema = z.object({
+      year: z
+        .string()
+        .refine((value) => parseInt(value), {
+          message: 'Invalid year filter',
+        })
+        .transform((value) => parseInt(value)),
+    });
+
+    const validated = Schema.parse({ year });
+
+    const data = await dashboardServicies.getBorrowedBookCountByMonth(
+      validated.year
+    );
 
     return res.status(200).json(data);
   } catch (error) {
@@ -22,7 +37,20 @@ export const topBookCategories = async (
   res: Response
 ) => {
   try {
-    const data = await dashboardServicies.topBookCategories();
+    const year = req.query.year;
+
+    const Schema = z.object({
+      year: z
+        .string()
+        .refine((value) => parseInt(value), {
+          message: 'Invalid year filter',
+        })
+        .transform((value) => parseInt(value)),
+    });
+
+    const validated = Schema.parse({ year });
+
+    const data = await dashboardServicies.topBookCategories(validated.year);
 
     return res.status(200).json(data);
   } catch (error) {

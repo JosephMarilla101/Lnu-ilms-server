@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
-export const getBorrowedBookCountByMonth = async () => {
+export const getBorrowedBookCountByMonth = async (year: number) => {
   const months = [
     'January',
     'February',
@@ -20,10 +20,9 @@ export const getBorrowedBookCountByMonth = async () => {
   const data = await Promise.all(
     months.map(async (name, index) => {
       const month = index + 1;
-      const currentYear = new Date().getFullYear();
 
-      const startDate = new Date(currentYear, month - 1, 1);
-      const endDate = new Date(currentYear, month, 0);
+      const startDate = new Date(year, month - 1, 1);
+      const endDate = new Date(year, month, 0);
       const count = await prisma.borrowRequest.count({
         where: {
           createdAt: {
@@ -39,9 +38,9 @@ export const getBorrowedBookCountByMonth = async () => {
   return data;
 };
 
-export const topBookCategories = async () => {
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+export const topBookCategories = async (year: number) => {
+  const startOfYear = new Date(`${year}-01-01`);
+  const endOfYear = new Date(`${year}-12-31`);
 
   const categories = await prisma.category.findMany({
     where: {
@@ -54,7 +53,8 @@ export const topBookCategories = async () => {
           borrowedBy: {
             some: {
               createdAt: {
-                gte: sevenDaysAgo, // Filter books borrowed within the last 7 days
+                gte: startOfYear,
+                lte: endOfYear,
               },
             },
           },
