@@ -3,10 +3,11 @@ import bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
 
 async function main() {
-  await adminSeeder();
-  await authorSeeder();
-  await categorySeeder();
-  await borrowedBookFeeSeeder();
+  await deleteAllBorrowRequests();
+  // await adminSeeder();
+  // await authorSeeder();
+  // await categorySeeder();
+  // await borrowedBookFeeSeeder();
 }
 
 main()
@@ -18,6 +19,15 @@ main()
     await prisma.$disconnect();
     process.exit(1);
   });
+
+async function deleteAllBorrowRequests() {
+  try {
+    await prisma.borrowRequest.deleteMany({});
+    console.log('All records deleted from BorrowRequest table.');
+  } catch (error) {
+    console.error('Error deleting records:', error);
+  }
+};  
 
 async function adminSeeder() {
   const adminEmail = 'admin@gmail.com';
