@@ -87,10 +87,13 @@ export const topBookCategories = async (year: number) => {
   return categoryBorrows.slice(0, 5);
 };
 
-export const userBorrowCount = async () => {
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
+export const userBorrowCount = async ({
+  startDate,
+  endDate,
+}: {
+  startDate: string;
+  endDate: string;
+}) => {
   const roles = ['STUDENT', 'GRADUATE', 'TEACHER'] as const;
 
   const dataset = await Promise.all(
@@ -101,7 +104,8 @@ export const userBorrowCount = async () => {
             role,
           },
           createdAt: {
-            gte: sevenDaysAgo, // Filter books borrowed within the last 7 days
+            gte: startDate,
+            lte: endDate,
           },
         },
       });
@@ -114,7 +118,7 @@ export const userBorrowCount = async () => {
 };
 
 export const userCountData = async () => {
-  const roles = ['STUDENT', 'GRADUATE', 'TEACHER', 'LIBRARIAN'] as const;
+  const roles = ['STUDENT', 'GRADUATE', 'TEACHER'] as const;
 
   const dataset = await Promise.all(
     roles.map(async (role) => {

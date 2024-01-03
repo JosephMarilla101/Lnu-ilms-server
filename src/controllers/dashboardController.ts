@@ -3,6 +3,7 @@ import { AuthenticatedRequest } from '../middlewares/jwtVerifier';
 import z from 'zod';
 import errHandler from '../middlewares/errorHandler';
 import * as dashboardServicies from '../services/dashboardServicies';
+import { isValidDateString } from '../utils/lib';
 
 export const getBorrowedBookCountByMonth = async (
   req: AuthenticatedRequest,
@@ -63,7 +64,27 @@ export const userBorrowCount = async (
   res: Response
 ) => {
   try {
-    const data = await dashboardServicies.userBorrowCount();
+    const startDate = req.query.startDate;
+    const endDate = req.query.endDate;
+
+    const Schema = z.object({
+      startDate: z
+        .string()
+        .refine((value) => isValidDateString(value), {
+          message: 'Invalid start date filter',
+        })
+        .transform((value) => new Date(value).toISOString()),
+      endDate: z
+        .string()
+        .refine((value) => isValidDateString(value), {
+          message: 'Invalid end date filter',
+        })
+        .transform((value) => new Date(value).toISOString()),
+    });
+
+    const validated = Schema.parse({ startDate, endDate });
+
+    const data = await dashboardServicies.userBorrowCount(validated);
 
     return res.status(200).json(data);
   } catch (error) {
