@@ -620,6 +620,9 @@ export const getStudentBorrowedBooks = async (id: number) => {
         include: {
           book: true,
         },
+        orderBy: {
+          updatedAt: 'desc',
+        },
       },
       profile: true,
     },
