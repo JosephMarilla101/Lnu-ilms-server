@@ -207,6 +207,7 @@ export const getIssuedBooks = async ({
       returnedDate: true,
       isReturn: true,
       lateFee: true,
+      updatedAt: true,
     },
     orderBy: {
       updatedAt: 'desc',
@@ -224,6 +225,7 @@ export const getIssuedBooks = async ({
       isReturn: data.isReturn,
       lateFee: data.lateFee,
       bookCover: data.book.bookCover,
+      updatedAt: data.updatedAt,
     };
   });
 
