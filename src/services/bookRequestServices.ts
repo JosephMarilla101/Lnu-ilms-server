@@ -46,6 +46,7 @@ export const getALLRequestedBooks = async ({
       status: true,
       isCancelled: true,
       requestDate: true,
+      updatedAt: true,
     },
     orderBy: {
       updatedAt: 'desc',
@@ -65,6 +66,7 @@ export const getALLRequestedBooks = async ({
       status: data.status,
       isCancelled: data.isCancelled,
       requestDate: data.requestDate,
+      updatedAt: data.updatedAt,
     };
   });
 
